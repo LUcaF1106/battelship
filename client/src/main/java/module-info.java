@@ -1,8 +1,10 @@
 module com.itis._5a.frasson.busanello {
-    requires javafx.controls;
-    requires org.apache.logging.log4j;
-    requires org.apache.logging.log4j.core;
-    requires java.scripting;
-    exports com.itis._5a.frasson.busanello;
-}
 
+    requires javafx.controls;
+    requires javafx.fxml;
+    requires javafx.graphics;
+
+    exports com.itis._5a.frasson.busanello;
+
+    opens com.itis._5a.frasson.busanello to javafx.fxml;
+}
