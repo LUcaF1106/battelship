@@ -1,8 +1,10 @@
-package com.itis._5a.frasson.busanello;
+package com.itis._5a.frasson.busanello.client;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+
+import java.io.IOException;
 
 public class LoginController {
     @FXML
@@ -15,7 +17,7 @@ public class LoginController {
     private Label messageLabel;
 
     @FXML
-    private void handleLogin() {
+    private void handleLogin() throws IOException {
         String username = usernameField.getText();
         String password = passwordField.getText();
 

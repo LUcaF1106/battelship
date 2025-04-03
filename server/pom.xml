@@ -9,7 +9,7 @@
           <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.itis._5a.frasson.busanello</groupId>
+    <groupId>com.itis._5a.frasson.busanello.server</groupId>
     <artifactId>server</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -17,5 +17,13 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.itis._5a.frasson.busanello</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>

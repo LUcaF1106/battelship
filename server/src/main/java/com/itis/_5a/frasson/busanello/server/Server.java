@@ -1,8 +1,7 @@
-package  com.itis._5a.frasson.busanello;
+package com.itis._5a.frasson.busanello.server;
+
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class Server {
