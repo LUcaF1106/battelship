@@ -26,7 +26,7 @@ public class Client extends Application {
     }
 
     @Override
-    public void stop() throws IOException{
+    public void stop() throws Exception {
         closeSocket();
 
     }
@@ -51,7 +51,7 @@ public class Client extends Application {
         socketThread.start();
     }
 
-    private void closeSocket() throws IOException {
+    private void closeSocket() throws Exception {
         if (socketClient != null && socketClient.isConnected()) {
             socketClient.sendMessage("logout");
             socketClient.disconnect();

@@ -1,8 +1,13 @@
 package com.itis._5a.frasson.busanello.client;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -17,7 +22,10 @@ public class LoginController {
     private Label messageLabel;
 
     @FXML
-    private void handleLogin() throws IOException {
+    private Button loginButton;
+
+    @FXML
+    private void handleLogin() throws Exception {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
@@ -25,10 +33,12 @@ public class LoginController {
         if (socketClient != null && socketClient.isConnected()) {
             String loginMessage = "login:" + username + ":" + password;
             String sent = socketClient.sendAndReceive(loginMessage);
-
+            System.out.println(sent);
+            System.out.println("ciao");
             if (sent.equals("Accesso")) {
                 messageLabel.setText("Credenziali inviate al server!");
                 messageLabel.setStyle("-fx-text-fill: green;");
+                loadMainScreen(true);
 
             } else {
                 messageLabel.setText("Errore nell'invio delle credenziali");
@@ -37,6 +47,34 @@ public class LoginController {
         } else {
             messageLabel.setText("Non connesso al server");
             messageLabel.setStyle("-fx-text-fill: red;");
+        }
+    }
+    @FXML
+    private void hadleWithoutLogin(){
+        loadMainScreen(false);
+    }
+
+    private void loadMainScreen(boolean auth) {
+        try {
+            ClientInfo clientInfo=ClientInfo.getInstance();
+            clientInfo.setValue(auth);
+            Stage currentStage = (Stage) loginButton.getScene().getWindow();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainPage.fxml"));
+            Parent root = loader.load();
+
+
+            Scene scene = new Scene(root);
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Battaglia Navale");
+
+            currentStage.setFullScreen(true);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
         }
     }
 

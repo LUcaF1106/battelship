@@ -1,11 +1,13 @@
 package com.itis._5a.frasson.busanello.client;
 
-import com.itis._5a.frasson.busanello.common.KeyExchange;
+import com.itis._5a.frasson.busanello.common.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class SocketClient{
     private static SocketClient instance;
+    private AES aesKey;
 
     private Socket socket;
     private DataOutputStream out;
@@ -25,7 +27,7 @@ public class SocketClient{
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             connected = true;
-
+            aesKey=new AES();
             setupKey();
             return true;
         } catch (IOException e) {
@@ -34,22 +36,29 @@ public class SocketClient{
         }
     }
 
-    public void sendMessage(String message) throws IOException {
+    public void sendMessage(String message) throws Exception {
 
         if (connected && out != null) {
-            out.writeUTF(message);
-
-
+            byte[] encryptMsg=aesKey.encrypt(message.getBytes());
+            out.writeInt(encryptMsg.length);
+            out.write(encryptMsg);
+            System.out.println("Send message");
         }
     }
 
-    public String receiveMessage() {
+    public String receiveMessage() throws Exception{
         if (connected && in != null) {
-            try {
-                return in.readUTF();
-            } catch (IOException e) {
-                System.err.println("Error receiving message: " + e.getMessage());
-            }
+//            try {
+                System.out.println("return message");
+                byte[] encmsg=new byte[in.readInt()];
+                System.out.println(encmsg.length);
+                in.readFully(encmsg);
+                String msg= new String(aesKey.decrypt(encmsg));
+                System.out.println(msg);
+                return msg;
+//            } catch (IOException e) {
+//                System.err.println("Error receiving message: " + e.getMessage());
+//            }
         }
         return "";
     }
@@ -69,7 +78,7 @@ public class SocketClient{
         }
     }
 
-    public String sendAndReceive(String message) throws IOException {
+    public String sendAndReceive(String message) throws Exception {
         sendMessage(message);
         return receiveMessage();
     }
@@ -84,15 +93,14 @@ public class SocketClient{
             int serverKeyLength = in.readInt();
             System.out.println(serverKeyLength);
             byte[] serverPublicKey = new byte[serverKeyLength];
-            System.out.println(serverPublicKey);
             in.readFully(serverPublicKey);
             keyExchange.setOtherPublicKey(serverPublicKey);
 
             out.writeInt(keyExchange.getPublicKeyBytes().length);
             out.write(keyExchange.getPublicKeyBytes());
 
-            keyExchange.generateSecret();
-
+            aesKey.setupAESKeys(keyExchange.generateSecret());
+            System.out.println("Setup aes key");
             //TODO: implementare sul server e fare in modo che si calcoli il "segreto comune"
 
         }catch (Exception e){

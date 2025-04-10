@@ -28,13 +28,13 @@
                    promptText="Password"
                    style="-fx-background-radius: 5; -fx-padding: 10px;"/>
 
-    <Button text="Login" onAction="#handleLogin">
+    <Button fx:id="loginButton" text="Login" onAction="#handleLogin">
         <VBox.margin>
             <Insets top="10" />
         </VBox.margin>
     </Button>
 
-    <Hyperlink text="Accedi senza credenziali" >
+    <Hyperlink text="Accedi senza credenziali" onAction="#hadleWithoutLogin">
     <VBox.margin>
         <Insets top="5" />
     </VBox.margin>

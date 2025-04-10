@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.itis._5a.frasson.busanello.client.MainController">
+
+    <top>
+        <VBox alignment="CENTER" spacing="10">
+            <padding>
+                <Insets top="20" bottom="20" />
+            </padding>
+            <Label text="BATTAGLIA NAVALE" textAlignment="CENTER">
+                <font>
+                    <Font name="System Bold" size="42.0" />
+                </font>
+            </Label>
+            <Label fx:id="welcomeLabel" text="Benvenuto!" textAlignment="CENTER">
+                <font>
+                    <Font size="16.0" />
+                </font>
+            </Label>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <Button text="NUOVA PARTITA" prefWidth="250" prefHeight="50" onAction="#startNewGame">
+                <font>
+                    <Font size="18.0" />
+                </font>
+            </Button>
+            <Button text="CARICA PARTITA" prefWidth="250" prefHeight="50" onAction="#loadGame">
+                <font>
+                    <Font size="18.0" />
+                </font>
+            </Button>
+            <Button text="IMPOSTAZIONI" prefWidth="250" prefHeight="50" onAction="#openSettings">
+                <font>
+                    <Font size="18.0" />
+                </font>
+            </Button>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER">
+            <padding>
+                <Insets bottom="20" />
+            </padding>
+            <VBox fx:id="adContainer" alignment="CENTER">
+                <WebView fx:id="adWebView" prefHeight="270.0" prefWidth="320.0" />
+            </VBox>
+        </HBox>
+    </bottom>
+
+</BorderPane>

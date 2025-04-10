@@ -12,6 +12,7 @@ public class ClientHandler extends Thread {
     private Auth auth;
     private boolean isAuthenticated;
     private String username = null;
+    private AES aes;
 
     public ClientHandler(Socket socket, Auth auth) {
         this.clientSocket = socket;
@@ -36,33 +37,49 @@ public class ClientHandler extends Thread {
             int clientKeyLength = in.readInt();
             System.out.println(clientKeyLength);
             byte[] clientPublicKey = new byte[clientKeyLength];
-            System.out.println(clientPublicKey);
             in.readFully(clientPublicKey);
             try {
                 keyExchange.setOtherPublicKey(clientPublicKey);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            AES aes=new AES();
+            aes=new AES();
             try {
                 aes.setupAESKeys(keyExchange.generateSecret());
+                System.out.println("Setup aes key");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
 
-            String message;
-            while (!((message = in.readUTF()) == null)) {
-                System.out.println("Messaggio ricevuto: " + message);
+            try {
+                while (true) {
+                    int length = in.readInt(); // leggiamo la lunghezza del messaggio
+                    if (length > 0) {
+                        byte[] messageEncrypted = new byte[length];
+                        in.readFully(messageEncrypted); // leggiamo i byte cifrati
 
-                if (message.startsWith("login:")) {
-                    Login(message, out);
-                } else if (message.equals("logout")) {
-                    Logout(out);
+                        byte[] messageDecrypted = aes.decrypt(messageEncrypted);
+                        String msg = new String(messageDecrypted);
+                        System.out.println("Messaggio ricevuto: " + msg);
+
+                        if (msg.startsWith("login:")) {
+                            Login(msg, out);
+                        } else if (msg.equals("logout")) {
+                            Logout(out);
+                            break; // usciamo dal ciclo se è logout
+                        }
+                    }
                 }
+            } catch (IOException e) {
+                System.err.println("Errore nella lettura dello stream: " + e.getMessage());
+                e.printStackTrace();
             }
+
         } catch (IOException e) {
             System.err.println("Errore con il client: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             try {
                 System.out.println("Client disconnesso: " + (username != null ? username : "non autenticato"));
@@ -73,7 +90,7 @@ public class ClientHandler extends Thread {
         }
     }
 
-    private void Login(String loginMessage, DataOutputStream out) throws IOException {
+    private void Login(String loginMessage, DataOutputStream out) throws Exception {
         String[] parts = loginMessage.split(":");
         if (parts.length != 3) {
             out.writeUTF("Formato non valido. Usa 'login:username:password'");
@@ -86,10 +103,19 @@ public class ClientHandler extends Thread {
         if (auth.authenticate(username, password)) {
             this.username = username;
             this.isAuthenticated = true;
-            out.writeUTF("Accesso");
+            String msg="Accesso";
+            byte[] encmsg=aes.encrypt(msg.getBytes());
+
+            System.out.println(encmsg.length);
+            out.writeInt(encmsg.length);
+
+            out.write(encmsg);
+
             System.out.println("Utente autenticato: " + username);
-        } else {
-            out.writeUTF("Autenticazione fallita: username o password non validi");
+        } else{
+            String msg="Autenticazione fallita: username o password non validi";
+
+            out.writeUTF(aes.encrypt(msg.getBytes()).toString());
         }
     }
 
@@ -97,8 +123,13 @@ public class ClientHandler extends Thread {
 
         System.out.println("Utente disconnesso: " + username);
         try {
-            out.writeUTF("Logout effettuato!");
+            String msg="Logout effettuato!";
+
+            out.writeUTF(aes.encrypt(msg.getBytes()).toString());
+
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         isAuthenticated = false;
