@@ -36,10 +36,10 @@ public class SocketClient{
         }
     }
 
-    public void sendMessage(String message) throws Exception {
+    public void sendMessage(byte[] message) throws Exception {
 
         if (connected && out != null) {
-            byte[] encryptMsg=aesKey.encrypt(message.getBytes());
+            byte[] encryptMsg=aesKey.encrypt(message);
             out.writeInt(encryptMsg.length);
             out.write(encryptMsg);
             System.out.println("Send message");
@@ -78,7 +78,7 @@ public class SocketClient{
         }
     }
 
-    public String sendAndReceive(String message) throws Exception {
+    public String sendAndReceive(byte[] message) throws Exception {
         sendMessage(message);
         return receiveMessage();
     }

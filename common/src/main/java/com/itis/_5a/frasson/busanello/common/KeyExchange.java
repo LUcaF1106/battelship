@@ -1,12 +1,9 @@
 package com.itis._5a.frasson.busanello.common;
 
 import javax.crypto.KeyAgreement;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-
-import java.security.KeyFactory;
 
 public class KeyExchange {
     private KeyPair keyPair;
@@ -14,31 +11,54 @@ public class KeyExchange {
     private final int KEY_SIZE= 2048;
     private final String ALGO="DH";
 
-    public void generateDHKeys() throws Exception {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGO);
-        keyGen.initialize(KEY_SIZE);
-        keyPair = keyGen.generateKeyPair();
+    public void generateDHKeys() {
+        try{
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGO);
+            keyGen.initialize(KEY_SIZE);
+            keyPair = keyGen.generateKeyPair();
+        }catch (NoSuchAlgorithmException e ){
+            System.err.println("Algoritmo inesistente "+ e.getMessage());
+            throw new RuntimeException("Algoritmo inesitente", e);
+        }
     }
 
     public byte[] getPublicKeyBytes() {
         return keyPair.getPublic().getEncoded();
     }
 
-    public void setOtherPublicKey(byte[] publicKeyBytes) throws Exception {
-        KeyFactory keyFactory = KeyFactory.getInstance(ALGO);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);//Formato della chiave pubblica inviata
-        OtherPublicKey = keyFactory.generatePublic(x509KeySpec);
+    public void setOtherPublicKey(byte[] publicKeyBytes)  {
+        try{
+            KeyFactory keyFactory = KeyFactory.getInstance(ALGO);
+            X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(publicKeyBytes);
+            OtherPublicKey = keyFactory.generatePublic(x509KeySpec);
+        }catch(NoSuchAlgorithmException e){
+            System.err.println("Algoritmo inesistente "+ e.getMessage());
+            throw new RuntimeException("Algoritmo inesitente", e);
+        }catch (NullPointerException e){
+            System.err.println("Pubblic key null "+ e.getMessage());
+            throw new RuntimeException("Pubblic key null", e);
+        }catch (InvalidKeySpecException e){
+            System.err.println("Errore generazionr chiave pubblica "+ e.getMessage());
+            throw new RuntimeException("Errore generazionr chiave pubblica", e);
+        }
     }
 
 
     /**
      * La combinazione delle chiavi (privata + pubblica dell'altro) garantisce che entrambi generino lo stesso segreto.
      **/
-    public byte[] generateSecret() throws Exception {
-
-        KeyAgreement keyAgreement = KeyAgreement.getInstance(ALGO);
-        keyAgreement.init(keyPair.getPrivate());
-        keyAgreement.doPhase(OtherPublicKey, true);
-        return keyAgreement.generateSecret();
+    public byte[] generateSecret()  {
+        try {
+            KeyAgreement keyAgreement = KeyAgreement.getInstance(ALGO);
+            keyAgreement.init(keyPair.getPrivate());
+            keyAgreement.doPhase(OtherPublicKey, true);
+            return keyAgreement.generateSecret();
+        } catch (InvalidKeyException e) {
+            System.err.println("Nessun algoritmo: "+ ALGO+" trovato."+ e.getMessage());
+            throw  new RuntimeException("Chiave usata non valida", e );
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("Nessun algoritmo: "+ ALGO+" trovato."+ e.getMessage() );
+            throw  new RuntimeException("Nessun algoritmo trovato", e );
+        }
     }
 }

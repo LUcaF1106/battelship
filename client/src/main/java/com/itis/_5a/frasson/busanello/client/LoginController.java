@@ -1,4 +1,7 @@
 package com.itis._5a.frasson.busanello.client;
+import com.google.gson.Gson;
+import com.itis._5a.frasson.busanello.common.Json;
+import com.itis._5a.frasson.busanello.common.Message.LoginM;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -26,13 +29,16 @@ public class LoginController {
 
     @FXML
     private void handleLogin() throws Exception {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+
 
         SocketClient socketClient = SocketClient.getInstance();
         if (socketClient != null && socketClient.isConnected()) {
-            String loginMessage = "login:" + username + ":" + password;
-            String sent = socketClient.sendAndReceive(loginMessage);
+
+            LoginM mes=new LoginM();
+            mes.setUser( usernameField.getText());
+            mes.setPassword(passwordField.getText());
+
+            String sent = socketClient.sendAndReceive(Json.serializedMessage(mes));
             System.out.println(sent);
             System.out.println("ciao");
             if (sent.equals("Accesso")) {

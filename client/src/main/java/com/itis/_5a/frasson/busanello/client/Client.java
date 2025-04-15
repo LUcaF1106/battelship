@@ -1,5 +1,7 @@
 package com.itis._5a.frasson.busanello.client;
 
+import com.itis._5a.frasson.busanello.common.Json;
+import com.itis._5a.frasson.busanello.common.Message.Message;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -53,7 +55,7 @@ public class Client extends Application {
 
     private void closeSocket() throws Exception {
         if (socketClient != null && socketClient.isConnected()) {
-            socketClient.sendMessage("logout");
+            socketClient.sendMessage(Json.serializedMessage(new Message("LOGOUT") ));
             socketClient.disconnect();
         }
 

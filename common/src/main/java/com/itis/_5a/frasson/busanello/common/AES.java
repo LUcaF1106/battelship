@@ -11,7 +11,7 @@ public class AES {
     private final String MODE="AES/CBC/PKCS5Padding";
 
 
-    public void setupAESKeys(byte[] sharedSecret) throws Exception {
+    public void setupAESKeys(byte[] sharedSecret)  {
         byte[] key = Arrays.copyOfRange(sharedSecret, 0, 32);
         byte[] ivBytes = Arrays.copyOfRange(sharedSecret, 32, 48);
         secretKey = new SecretKeySpec(key, "AES");

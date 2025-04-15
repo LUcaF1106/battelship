@@ -3,20 +3,36 @@ package com.itis._5a.frasson.busanello.server;
 
 import java.io.*;
 import java.net.Socket;
+
+import com.itis._5a.frasson.busanello.common.Json;
 import com.itis._5a.frasson.busanello.common.KeyExchange;
 import com.itis._5a.frasson.busanello.common.AES;
+import com.itis._5a.frasson.busanello.common.Message.LoginM;
+import com.itis._5a.frasson.busanello.common.Message.Message;
+import lombok.Synchronized;
 
+public class ClientHandler implements Runnable{
+    private final Socket clientSocket;
+    private final Auth auth;
 
-public class ClientHandler extends Thread {
-    private Socket clientSocket;
-    private Auth auth;
     private boolean isAuthenticated;
-    private String username = null;
+    private String username =null;
     private AES aes;
+    private int state;
+    private Object lock= new Object();
 
     public ClientHandler(Socket socket, Auth auth) {
         this.clientSocket = socket;
         this.auth= auth;
+    }
+
+    @Synchronized("lock")
+    public int getState() {
+        return state;
+    }
+    @Synchronized("lock")
+    public void setState(int state) {
+        this.state = state;
     }
 
     @Override
@@ -25,32 +41,7 @@ public class ClientHandler extends Thread {
                 DataInputStream in = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream())
         ) {
-            KeyExchange keyExchange = new KeyExchange();
-            try {
-                keyExchange.generateDHKeys();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            out.writeInt(keyExchange.getPublicKeyBytes().length);
-            out.write(keyExchange.getPublicKeyBytes());
-
-            int clientKeyLength = in.readInt();
-            System.out.println(clientKeyLength);
-            byte[] clientPublicKey = new byte[clientKeyLength];
-            in.readFully(clientPublicKey);
-            try {
-                keyExchange.setOtherPublicKey(clientPublicKey);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            aes=new AES();
-            try {
-                aes.setupAESKeys(keyExchange.generateSecret());
-                System.out.println("Setup aes key");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
+            setupSecureCom(out, in);
 
             try {
                 while (true) {
@@ -60,15 +51,26 @@ public class ClientHandler extends Thread {
                         in.readFully(messageEncrypted); // leggiamo i byte cifrati
 
                         byte[] messageDecrypted = aes.decrypt(messageEncrypted);
-                        String msg = new String(messageDecrypted);
-                        System.out.println("Messaggio ricevuto: " + msg);
 
-                        if (msg.startsWith("login:")) {
-                            Login(msg, out);
-                        } else if (msg.equals("logout")) {
-                            Logout(out);
-                            break; // usciamo dal ciclo se è logout
+                        Message m= Json.deserialiazedMessage(messageDecrypted);
+
+
+                        switch (m.getType()){
+                            case "LOGIN":
+                                LoginM mes=Json.deserializedSpecificMessage(messageDecrypted, LoginM.class);
+                                Login(mes.getUser(), mes.getPassword(), out);
+                                break;
+                            case "LOGOUT":
+                                break;
+                            default:
+                                break;
                         }
+//                        if (msg.startsWith("login:")) {
+//                            Login(msg, out);
+//                        } else if (msg.equals("logout")) {
+//                            Logout(out);
+//                            break; // usciamo dal ciclo se è logout
+//                        }
                     }
                 }
             } catch (IOException e) {
@@ -90,15 +92,8 @@ public class ClientHandler extends Thread {
         }
     }
 
-    private void Login(String loginMessage, DataOutputStream out) throws Exception {
-        String[] parts = loginMessage.split(":");
-        if (parts.length != 3) {
-            out.writeUTF("Formato non valido. Usa 'login:username:password'");
-            return;
-        }
+    private void Login(String username,String password, DataOutputStream out) throws Exception {
 
-        String username = parts[1];
-        String password = parts[2];
 
         if (auth.authenticate(username, password)) {
             this.username = username;
@@ -137,5 +132,34 @@ public class ClientHandler extends Thread {
 
     }
 
+    private void setupSecureCom(DataOutputStream out, DataInputStream in)  {
+        KeyExchange keyExchange = new KeyExchange();
+        aes=new AES();
+
+        try {
+            keyExchange.generateDHKeys();
+
+            out.writeInt(keyExchange.getPublicKeyBytes().length);
+            out.write(keyExchange.getPublicKeyBytes());
+
+            int clientKeyLength = in.readInt();
+
+            byte[] clientPublicKey = new byte[clientKeyLength];
+            in.readFully(clientPublicKey);
+            keyExchange.setOtherPublicKey(clientPublicKey);
+
+            aes.setupAESKeys(keyExchange.generateSecret());
+            System.out.println("Setup aes key");
+        } catch (RuntimeException | IOException e) {
+
+            System.err.println("Comunicazione sicura non impostata");
+            try {
+                clientSocket.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+    }
 
 }
