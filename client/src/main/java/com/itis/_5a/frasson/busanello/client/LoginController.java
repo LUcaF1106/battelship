@@ -1,7 +1,7 @@
 package com.itis._5a.frasson.busanello.client;
-import com.google.gson.Gson;
 import com.itis._5a.frasson.busanello.common.Json;
 import com.itis._5a.frasson.busanello.common.Message.LoginM;
+import com.itis._5a.frasson.busanello.common.Message.Message;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -32,16 +32,18 @@ public class LoginController {
 
 
         SocketClient socketClient = SocketClient.getInstance();
-        if (socketClient != null && socketClient.isConnected()) {
+        if (socketClient != null && socketClient.isIsconnected()) {
 
             LoginM mes=new LoginM();
+
             mes.setUser( usernameField.getText());
             mes.setPassword(passwordField.getText());
 
-            String sent = socketClient.sendAndReceive(Json.serializedMessage(mes));
-            System.out.println(sent);
-            System.out.println("ciao");
-            if (sent.equals("Accesso")) {
+            Message sent=socketClient.sendAndReceive(Json.serializedMessage(mes), Message.class);
+
+
+            System.out.println(sent.getType());
+            if (sent.getType().equals("ACC")) {
                 messageLabel.setText("Credenziali inviate al server!");
                 messageLabel.setStyle("-fx-text-fill: green;");
                 loadMainScreen(true);

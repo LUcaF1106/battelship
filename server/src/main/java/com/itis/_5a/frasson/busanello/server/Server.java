@@ -3,32 +3,45 @@ package com.itis._5a.frasson.busanello.server;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class Server {
     private static final int PORT = 12345;
+    private static Server instance;
+    private static final Auth authentication = new Auth();
+
+    public static synchronized Server getInstance() {
+        if (instance == null) {
+            instance = new Server(PORT, authentication);
+        }
+        return instance;
+    }
 
     public static void main(String[] args) {
-        Auth auth = new Auth();
-        Server server = new Server(PORT, auth);
+        Server server = getInstance();
         server.start();
     }
 
     private final int port;
     private final Auth auth;
     private ArrayList<ClientHandler> clientList;
-
+    private final BlockingQueue<ClientHandler> queue;
 
     public Server(int port, Auth auth) {
         this.port = port;
         this.auth = auth;
         this.clientList = new ArrayList<>();
+        this.queue = new LinkedBlockingQueue<>();
     }
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server in ascolto sulla porta " + port);
+            Thread tMatch=new Thread(this::matchMaking);
+                    tMatch.start();
+
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -38,10 +51,34 @@ public class Server {
                 clientList.add(c);
                 Thread t=new Thread(c);
                 t.start();
-                //TODO implementare stato se sono alla richerca di anlti in game o sono sulla schermata main o in gioco
+
             }
         } catch (IOException e) {
             System.err.println("Errore nel server: " + e.getMessage());
+        }
+    }
+
+    public void matchMaking() {
+        try {
+            while (true) {
+                ClientHandler client1 = queue.take();
+                ClientHandler client2 = queue.take();
+
+                System.out.println(client1.getId());
+                System.out.println(client2.getId());
+            }
+        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+            System.out.println("Errore durante il matchmaking.");
+        }
+    }
+    public void enqueue(ClientHandler client) {
+        try {
+            queue.put(client);
+
+        } catch (InterruptedException e) {
+
+            System.out.println("Errore durante enqueue.");
         }
     }
 }

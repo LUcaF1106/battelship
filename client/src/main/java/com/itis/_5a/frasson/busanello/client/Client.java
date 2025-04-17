@@ -8,9 +8,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 
 public class Client extends Application {
+
+
     private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 12345;
     private SocketClient socketClient;
@@ -54,7 +55,7 @@ public class Client extends Application {
     }
 
     private void closeSocket() throws Exception {
-        if (socketClient != null && socketClient.isConnected()) {
+        if (socketClient != null && socketClient.isIsconnected()) {
             socketClient.sendMessage(Json.serializedMessage(new Message("LOGOUT") ));
             socketClient.disconnect();
         }

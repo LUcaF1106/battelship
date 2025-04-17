@@ -4,9 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@Getter
+
 public class Message {
 
+    @Getter
     protected String type;
 
     Message(){

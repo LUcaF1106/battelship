@@ -1,5 +1,7 @@
 package com.itis._5a.frasson.busanello.client;
 
+import com.itis._5a.frasson.busanello.common.Json;
+import com.itis._5a.frasson.busanello.common.Message.Message;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -98,8 +100,10 @@ public class MainController {
 
 
     @FXML
-    public void startNewGame() {
+    public void startNewGame() throws Exception {
         System.out.println("Avvio nuova partita...");
+        SocketClient socketClient=SocketClient.getInstance();
+        socketClient.sendAndReceive(Json.serializedMessage(new Message("FMATCH")), Message.class);
     }
 
     @FXML

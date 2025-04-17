@@ -5,7 +5,8 @@ import lombok.Setter;
 
 public class ClientInfo {
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private boolean value;
 
     private static ClientInfo instance;

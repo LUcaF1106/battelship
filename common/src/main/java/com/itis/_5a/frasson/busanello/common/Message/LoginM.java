@@ -3,11 +3,15 @@ package com.itis._5a.frasson.busanello.common.Message;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+
 public class LoginM extends Message {
 
+    @Getter
+    @Setter
     private String user;
+
+    @Getter
+    @Setter
     private String password;
 
     public LoginM(){
