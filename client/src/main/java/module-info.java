@@ -5,7 +5,7 @@ module com.itis._5a.frasson.busanello.client {
     requires org.apache.logging.log4j;
     requires javafx.web;
     requires static lombok;
-
+    requires com.google.gson;
 
     opens com.itis._5a.frasson.busanello.client to javafx.fxml;
 

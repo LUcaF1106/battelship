@@ -34,7 +34,7 @@
         </VBox.margin>
     </Button>
 
-    <Hyperlink text="Accedi senza credenziali" onAction="#handleWithoutLogin">
+    <Hyperlink text="Accedi senza credenziali" onAction="#hadleWithoutLogin">
     <VBox.margin>
         <Insets top="5" />
     </VBox.margin>

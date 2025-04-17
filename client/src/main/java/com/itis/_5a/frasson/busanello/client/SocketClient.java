@@ -4,22 +4,19 @@ import com.itis._5a.frasson.busanello.common.*;
 import lombok.Getter;
 
 import java.io.*;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 public class SocketClient {
     private static SocketClient instance;
     private AES aesKey;
 
     private Socket socket;
-    private InputStream rawIn;
-    private OutputStream rawOut;
-    private ObjectInputStream objectIn;
-    private ObjectOutputStream objectOut;
+    private DataOutputStream out;
+    private DataInputStream in;
+
 
     @Getter
-    private boolean isConnected = false;
+    private boolean isconnected = false;
 
     public static synchronized SocketClient getInstance() {
         if (instance == null) {
@@ -28,110 +25,88 @@ public class SocketClient {
         return instance;
     }
 
-    public boolean connect(String host, int port, int timeout) throws IOException {
-        disconnect(); // Clean up any existing connection
-
+    public boolean connect(String host, int port) {
         try {
-            socket = new Socket();
-            socket.connect(new InetSocketAddress(host, port), timeout);
-
-            rawIn = socket.getInputStream();
-            rawOut = socket.getOutputStream();
-
-            // Perform key exchange with timeout
-            socket.setSoTimeout(timeout);
+            socket = new Socket(host, port);
+            out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+            isconnected = true;
             aesKey = new AES();
             setupKey();
-            socket.setSoTimeout(0); // Reset timeout after key exchange
-
-            // Initialize object streams
-            objectOut = new ObjectOutputStream(rawOut);
-            objectOut.flush();
-            objectIn = new ObjectInputStream(rawIn);
-
-            isConnected = true;
             return true;
-        } catch (SocketTimeoutException e) {
-            System.err.println("Connection timed out");
-            disconnect();
-            throw e;
         } catch (IOException e) {
-            System.err.println("Connection failed: " + e.getMessage());
-            disconnect();
-            throw e;
+            System.err.println("Connection error: " + e.getMessage());
+            return false;
         }
     }
 
-    public void sendMessage(byte[] message) throws IOException {
-        if (!isConnected || objectOut == null) {
-            throw new IOException("Not connected or output stream not initialized");
-        }
-
-        try {
+    public void sendMessage(byte[] message) throws Exception {
+        if (isconnected && out != null) {
             byte[] encryptMsg = aesKey.encrypt(message);
+            ObjectOutputStream objectOut = new ObjectOutputStream(out);
             objectOut.writeObject(encryptMsg);
             objectOut.flush();
-        } catch (Exception e) {
-            isConnected = false;
-            throw new IOException("Failed to send message", e);
+            System.out.println("Send message");
         }
     }
 
-    public <T> T receiveMessage(Class<T> tClass) throws IOException {
-        if (!isConnected || objectIn == null) {
-            throw new IOException("Not connected or input stream not initialized");
-        }
-
+    public <T> T receiveMessage(Class<T> tClass) {
         try {
+            System.out.println("ciao ciao");
+            ObjectInputStream objectIn = new ObjectInputStream(in);
             byte[] encmsg = (byte[]) objectIn.readObject();
-            byte[] decryptedMsg = aesKey.decrypt(encmsg);
-            return Json.deserializedSpecificMessage(decryptedMsg, tClass);
+
+            System.out.println(encmsg);
+            return Json.deserializedSpecificMessage(aesKey.decrypt(encmsg), tClass);
+        } catch (IOException e) {
+            System.err.println("Error receiving message: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println(e);
+            throw new RuntimeException(e);
         } catch (Exception e) {
-            isConnected = false;
-            throw new IOException("Failed to receive message", e);
+            System.err.println(e);
+            throw new RuntimeException(e);
         }
+        return null;
     }
 
     public void disconnect() {
-        isConnected = false;
+        isconnected = false;
         try {
-            if (objectOut != null) objectOut.close();
-            if (objectIn != null) objectIn.close();
-            if (socket != null && !socket.isClosed()) socket.close();
+            if (out != null) out.close();
+            if (in != null) in.close();
+            if (socket != null) socket.close();
         } catch (IOException e) {
             System.err.println("Error during disconnect: " + e.getMessage());
-        } finally {
-            objectOut = null;
-            objectIn = null;
-            socket = null;
         }
     }
 
-    public <T> T sendAndReceive(byte[] message, Class<T> tClass) throws IOException {
+    public <T> T sendAndReceive(byte[] message, Class<T> tClass) throws Exception {
         sendMessage(message);
         return receiveMessage(tClass);
     }
 
-    private void setupKey() throws IOException {
+    public void setupKey() {
         try {
-            DataOutputStream dataOut = new DataOutputStream(rawOut);
-            DataInputStream dataIn = new DataInputStream(rawIn);
-
+            // genera chiavi
             KeyExchange keyExchange = new KeyExchange();
             keyExchange.generateDHKeys();
 
-            int serverKeyLength = dataIn.readInt();
+            // scambio chiavi con server
+            int serverKeyLength = in.readInt();
+            System.out.println(serverKeyLength);
             byte[] serverPublicKey = new byte[serverKeyLength];
-            dataIn.readFully(serverPublicKey);
+            in.readFully(serverPublicKey);
             keyExchange.setOtherPublicKey(serverPublicKey);
 
-            dataOut.writeInt(keyExchange.getPublicKeyBytes().length);
-            dataOut.write(keyExchange.getPublicKeyBytes());
-            dataOut.flush();
+            out.writeInt(keyExchange.getPublicKeyBytes().length);
+            out.write(keyExchange.getPublicKeyBytes());
 
             aesKey.setupAESKeys(keyExchange.generateSecret());
+            System.out.println("Setup aes key");
         } catch (Exception e) {
-            throw new IOException("Key exchange failed", e);
+            System.err.println("Errore creazione comunicazione sicura");
+            disconnect();
         }
     }
 }
