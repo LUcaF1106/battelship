@@ -3,49 +3,64 @@ package com.itis._5a.frasson.busanello.client;
 import com.itis._5a.frasson.busanello.common.Json;
 import com.itis._5a.frasson.busanello.common.Message.Message;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class Client extends Application {
+    public static final String SERVER_HOST = "localhost";
+    public static final int SERVER_PORT = 12345;
+    public static final int CONNECTION_TIMEOUT = 5000; // 5 seconds
 
-
-    private static final String SERVER_HOST = "localhost";
-    private static final int SERVER_PORT = 12345;
     private SocketClient socketClient;
     private Thread socketThread;
-
+    private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
+
+        // Load the login page first
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/LoginPage.fxml"));
         Parent root = loader.load();
-        initSocketConnection();
-        primaryStage.setTitle("Socket Application");
+
+        // Setup primary stage
+        primaryStage.setTitle("Battaglia Navale - Login");
         primaryStage.setScene(new Scene(root, 900, 500));
         primaryStage.show();
+
+        // Initialize connection after UI is shown
+        initSocketConnection(loader.getController());
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         closeSocket();
-
+        System.out.println("Application shutting down");
     }
-    private void initSocketConnection() {
+
+    private void initSocketConnection(LoginController controller) {
         socketClient = SocketClient.getInstance();
 
-
         socketThread = new Thread(() -> {
-            System.out.println("Thread socket avviato - Tentativo di connessione a " + SERVER_HOST + ":" + SERVER_PORT);
-            boolean connected = socketClient.connect(SERVER_HOST, SERVER_PORT);
+            try {
+                System.out.println("Attempting connection to " + SERVER_HOST + ":" + SERVER_PORT);
+                boolean connected = socketClient.connect(SERVER_HOST, SERVER_PORT, CONNECTION_TIMEOUT);
 
-            if (connected) {
-                System.out.println("Connessione al server stabilita");
-
-            } else {
-                System.err.println("Impossibile connettersi al server");
+                Platform.runLater(() -> {
+                    controller.setConnectionStatus(connected);
+                    if (connected) {
+                        System.out.println("Server connection established");
+                    } else {
+                        System.err.println("Failed to connect to server");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> controller.setConnectionStatus(false));
+                System.err.println("Connection error: " + e.getMessage());
+                e.printStackTrace();
             }
         });
 
@@ -54,14 +69,14 @@ public class Client extends Application {
         socketThread.start();
     }
 
-    private void closeSocket() throws Exception {
-        if (socketClient != null && socketClient.isIsconnected()) {
-            socketClient.sendMessage(Json.serializedMessage(new Message("LOGOUT") ));
-            socketClient.disconnect();
-        }
-
-        if (socketThread != null && socketThread.isAlive()) {
-            socketThread.interrupt();
+    private void closeSocket() {
+        try {
+            if (socketClient != null && socketClient.isConnected()) {
+                socketClient.sendMessage(Json.serializedMessage(new Message("LOGOUT")));
+                socketClient.disconnect();
+            }
+        } catch (Exception e) {
+            System.err.println("Error during socket close: " + e.getMessage());
         }
     }
 
