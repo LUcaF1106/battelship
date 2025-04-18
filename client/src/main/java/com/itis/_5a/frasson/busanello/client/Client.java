@@ -12,20 +12,33 @@ import javafx.stage.Stage;
 public class Client extends Application {
 
 
-    private static final String SERVER_HOST = "localhost";
-    private static final int SERVER_PORT = 12345;
+    private final String[][] scenes = {
+            {"Login", "/LoginPage.fxml"},
+            {"Main", "/MainPage.fxml"},
+            {"Loading", "/LoadingPage.fxml"}
+    };
+
     private SocketClient socketClient;
     private Thread socketThread;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/LoginPage.fxml"));
-        Parent root = loader.load();
-        initSocketConnection();
+
         primaryStage.setTitle("Socket Application");
-        primaryStage.setScene(new Scene(root, 900, 500));
-        primaryStage.show();
+        SceneManager sceneManager=SceneManager.getInstance();
+        sceneManager.setStage(primaryStage);
+
+
+        for (String[] scene : scenes) {
+            sceneManager.addScene(scene[0], scene[1]);
+        }
+
+
+
+        initSocketConnection();
+        sceneManager.switchTo("Login");
+
     }
 
     @Override
@@ -34,28 +47,17 @@ public class Client extends Application {
 
     }
     private void initSocketConnection() {
-        socketClient = SocketClient.getInstance();
 
 
-        socketThread = new Thread(() -> {
-            System.out.println("Thread socket avviato - Tentativo di connessione a " + SERVER_HOST + ":" + SERVER_PORT);
-            boolean connected = socketClient.connect(SERVER_HOST, SERVER_PORT);
-
-            if (connected) {
-                System.out.println("Connessione al server stabilita");
-
-            } else {
-                System.err.println("Impossibile connettersi al server");
-            }
-        });
+        socketThread = new Thread(SocketClient.getInstance());
 
         socketThread.setDaemon(true);
-        socketThread.setName("SocketConnectionThread");
         socketThread.start();
     }
 
     private void closeSocket() throws Exception {
         if (socketClient != null && socketClient.isIsconnected()) {
+
             socketClient.sendMessage(Json.serializedMessage(new Message("LOGOUT") ));
             socketClient.disconnect();
         }

@@ -3,17 +3,22 @@ package com.itis._5a.frasson.busanello.client;
 import com.itis._5a.frasson.busanello.common.*;
 import lombok.Getter;
 
+
 import java.io.*;
 import java.net.Socket;
 
-public class SocketClient {
+public class SocketClient implements Runnable{
+
+    private static final String SERVER_HOST = "localhost";
+    private static final int SERVER_PORT = 12345;
     private static SocketClient instance;
     private AES aesKey;
 
     private Socket socket;
-    private DataOutputStream out;
-    private DataInputStream in;
-
+    private OutputStream out;
+    private InputStream in;
+    private ObjectInputStream objectIn;
+    private ObjectOutputStream objectOut;
 
     @Getter
     private boolean isconnected = false;
@@ -25,11 +30,22 @@ public class SocketClient {
         return instance;
     }
 
+    @Override
+    public void run() {
+        connect(SERVER_HOST, SERVER_PORT);
+    }
+
     public boolean connect(String host, int port) {
         try {
             socket = new Socket(host, port);
-            out = new DataOutputStream(socket.getOutputStream());
-            in = new DataInputStream(socket.getInputStream());
+            out = socket.getOutputStream();
+
+            objectOut = new ObjectOutputStream(out);
+            objectOut.flush();
+
+            in = socket.getInputStream();
+            objectIn = new ObjectInputStream(in);
+
             isconnected = true;
             aesKey = new AES();
             setupKey();
@@ -41,9 +57,9 @@ public class SocketClient {
     }
 
     public void sendMessage(byte[] message) throws Exception {
-        if (isconnected && out != null) {
+        if (isconnected && objectOut != null) {
             byte[] encryptMsg = aesKey.encrypt(message);
-            ObjectOutputStream objectOut = new ObjectOutputStream(out);
+
             objectOut.writeObject(encryptMsg);
             objectOut.flush();
             System.out.println("Send message");
@@ -52,19 +68,12 @@ public class SocketClient {
 
     public <T> T receiveMessage(Class<T> tClass) {
         try {
-            System.out.println("ciao ciao");
-            ObjectInputStream objectIn = new ObjectInputStream(in);
-            byte[] encmsg = (byte[]) objectIn.readObject();
 
-            System.out.println(encmsg);
+            byte[] encmsg = (byte[]) objectIn.readObject();
             return Json.deserializedSpecificMessage(aesKey.decrypt(encmsg), tClass);
         } catch (IOException e) {
             System.err.println("Error receiving message: " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            System.err.println(e);
-            throw new RuntimeException(e);
         } catch (Exception e) {
-            System.err.println(e);
             throw new RuntimeException(e);
         }
         return null;
@@ -75,6 +84,8 @@ public class SocketClient {
         try {
             if (out != null) out.close();
             if (in != null) in.close();
+            if(objectIn !=null) objectIn.close();
+            if(objectOut!=null) objectOut.close();
             if (socket != null) socket.close();
         } catch (IOException e) {
             System.err.println("Error during disconnect: " + e.getMessage());
@@ -88,25 +99,32 @@ public class SocketClient {
 
     public void setupKey() {
         try {
+
+            DataOutputStream dout = new DataOutputStream(out);
+            DataInputStream din = new DataInputStream(in);
+
             // genera chiavi
             KeyExchange keyExchange = new KeyExchange();
             keyExchange.generateDHKeys();
 
             // scambio chiavi con server
-            int serverKeyLength = in.readInt();
-            System.out.println(serverKeyLength);
+            int serverKeyLength = din.readInt();
+
             byte[] serverPublicKey = new byte[serverKeyLength];
-            in.readFully(serverPublicKey);
+            din.readFully(serverPublicKey);
             keyExchange.setOtherPublicKey(serverPublicKey);
 
-            out.writeInt(keyExchange.getPublicKeyBytes().length);
-            out.write(keyExchange.getPublicKeyBytes());
-
+            dout.writeInt(keyExchange.getPublicKeyBytes().length);
+            dout.write(keyExchange.getPublicKeyBytes());
+            dout.flush(); 
             aesKey.setupAESKeys(keyExchange.generateSecret());
             System.out.println("Setup aes key");
+
         } catch (Exception e) {
-            System.err.println("Errore creazione comunicazione sicura");
+            System.err.println("Errore creazione comunicazione sicura: " + e.getMessage());
+            e.printStackTrace(); // Aggiungi questo per il debug
             disconnect();
         }
     }
-}
+
+ }

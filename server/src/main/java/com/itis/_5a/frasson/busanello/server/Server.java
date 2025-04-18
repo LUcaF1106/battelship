@@ -64,8 +64,11 @@ public class Server {
                 ClientHandler client1 = queue.take();
                 ClientHandler client2 = queue.take();
 
-                System.out.println(client1.getId());
-                System.out.println(client2.getId());
+                Match match= new Match(client1, client2);
+
+                Thread t=new Thread(match);
+                t.start();
+
             }
         } catch (InterruptedException e) {
 //            Thread.currentThread().interrupt();

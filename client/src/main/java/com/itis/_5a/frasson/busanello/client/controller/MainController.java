@@ -1,9 +1,10 @@
-package com.itis._5a.frasson.busanello.client;
+package com.itis._5a.frasson.busanello.client.controller;
 
+import com.itis._5a.frasson.busanello.client.ClientInfo;
+import com.itis._5a.frasson.busanello.client.SceneManager;
+import com.itis._5a.frasson.busanello.client.SocketClient;
 import com.itis._5a.frasson.busanello.common.Json;
 import com.itis._5a.frasson.busanello.common.Message.Message;
-import javafx.application.Application;
-import javafx.stage.Stage;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
@@ -103,7 +104,13 @@ public class MainController {
     public void startNewGame() throws Exception {
         System.out.println("Avvio nuova partita...");
         SocketClient socketClient=SocketClient.getInstance();
-        socketClient.sendAndReceive(Json.serializedMessage(new Message("FMATCH")), Message.class);
+
+
+
+        Message m= socketClient.sendAndReceive(Json.serializedMessage(new Message("FMATCH")), Message.class);
+        System.out.println(m.getType());
+        SceneManager sm=SceneManager.getInstance();
+        sm.switchTo("Loading");
     }
 
     @FXML

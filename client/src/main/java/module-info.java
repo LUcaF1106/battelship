@@ -6,9 +6,12 @@ module com.itis._5a.frasson.busanello.client {
     requires javafx.web;
     requires static lombok;
     requires com.google.gson;
+    requires org.apache.logging.log4j.core;
 
     opens com.itis._5a.frasson.busanello.client to javafx.fxml;
 
     exports com.itis._5a.frasson.busanello.client;
+    exports com.itis._5a.frasson.busanello.client.controller;
+    opens com.itis._5a.frasson.busanello.client.controller to javafx.fxml;
 
 }

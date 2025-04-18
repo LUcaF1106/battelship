@@ -8,7 +8,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.itis._5a.frasson.busanello.client.MainController">
+            fx:controller="com.itis._5a.frasson.busanello.client.controller.MainController">
 
     <top>
         <VBox alignment="CENTER" spacing="10">

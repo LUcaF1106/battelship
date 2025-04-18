@@ -1,18 +1,15 @@
-package com.itis._5a.frasson.busanello.client;
+package com.itis._5a.frasson.busanello.client.controller;
+import com.itis._5a.frasson.busanello.client.ClientInfo;
+import com.itis._5a.frasson.busanello.client.SceneManager;
+import com.itis._5a.frasson.busanello.client.SocketClient;
 import com.itis._5a.frasson.busanello.common.Json;
 import com.itis._5a.frasson.busanello.common.Message.LoginM;
 import com.itis._5a.frasson.busanello.common.Message.Message;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class LoginController {
     @FXML
@@ -63,27 +60,13 @@ public class LoginController {
     }
 
     private void loadMainScreen(boolean auth) {
-        try {
-            ClientInfo clientInfo=ClientInfo.getInstance();
-            clientInfo.setValue(auth);
-            Stage currentStage = (Stage) loginButton.getScene().getWindow();
+        ClientInfo clientInfo=ClientInfo.getInstance();
+        clientInfo.setValue(auth);
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainPage.fxml"));
-            Parent root = loader.load();
+        SceneManager sm= SceneManager.getInstance();
 
+        sm.switchTo("Main");
 
-            Scene scene = new Scene(root);
-
-            currentStage.setScene(scene);
-            currentStage.setTitle("Battaglia Navale");
-
-            currentStage.setFullScreen(true);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        }
     }
 
 }

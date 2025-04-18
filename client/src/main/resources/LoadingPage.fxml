@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ProgressIndicator?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.itis._5a.frasson.busanello.client.controller.LoadingController" fx:id="rootPane"
+           >
+
+<ProgressIndicator fx:id="progressIndicator" progress="-1"
+                   style="-fx-progress-color: #4285F4; -fx-background-insets: 0;"/>
+</StackPane>
+
