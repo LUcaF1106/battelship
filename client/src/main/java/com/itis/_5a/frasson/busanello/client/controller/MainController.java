@@ -103,12 +103,7 @@ public class MainController {
     @FXML
     public void startNewGame() throws Exception {
         System.out.println("Avvio nuova partita...");
-        SocketClient socketClient=SocketClient.getInstance();
 
-
-
-        Message m= socketClient.sendAndReceive(Json.serializedMessage(new Message("FMATCH")), Message.class);
-        System.out.println(m.getType());
         SceneManager sm=SceneManager.getInstance();
         sm.switchTo("Loading");
     }

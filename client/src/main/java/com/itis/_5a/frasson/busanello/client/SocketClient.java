@@ -103,11 +103,11 @@ public class SocketClient implements Runnable{
             DataOutputStream dout = new DataOutputStream(out);
             DataInputStream din = new DataInputStream(in);
 
-            // genera chiavi
+
             KeyExchange keyExchange = new KeyExchange();
             keyExchange.generateDHKeys();
 
-            // scambio chiavi con server
+
             int serverKeyLength = din.readInt();
 
             byte[] serverPublicKey = new byte[serverKeyLength];
@@ -116,7 +116,7 @@ public class SocketClient implements Runnable{
 
             dout.writeInt(keyExchange.getPublicKeyBytes().length);
             dout.write(keyExchange.getPublicKeyBytes());
-            dout.flush(); 
+            dout.flush();
             aesKey.setupAESKeys(keyExchange.generateSecret());
             System.out.println("Setup aes key");
 

@@ -66,6 +66,9 @@ public class Server {
 
                 Match match= new Match(client1, client2);
 
+                client1.setCurrentMatch(match);
+                client2.setCurrentMatch(match);
+
                 Thread t=new Thread(match);
                 t.start();
 

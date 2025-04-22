@@ -9,7 +9,9 @@ import com.itis._5a.frasson.busanello.common.KeyExchange;
 import com.itis._5a.frasson.busanello.common.AES;
 import com.itis._5a.frasson.busanello.common.Message.LoginM;
 import com.itis._5a.frasson.busanello.common.Message.Message;
+import com.itis._5a.frasson.busanello.common.Message.ShipPlacement;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.Synchronized;
 
 public class ClientHandler implements Runnable {
@@ -32,6 +34,9 @@ public class ClientHandler implements Runnable {
     private ObjectInputStream objectIn;
     private ObjectOutputStream objectOut;
 
+    @Getter
+    @Setter
+    private Match currentMatch;
 
     public ClientHandler(Socket socket, Auth auth) {
         this.clientSocket = socket;
@@ -90,6 +95,18 @@ public class ClientHandler implements Runnable {
                             case "FMATCH":
                                 System.out.println("Find a match");
                                 server.enqueue(this);
+                                break;
+                            case "SP":
+
+                                if(currentMatch!=null){
+                                    ShipPlacement sp=Json.deserializedSpecificMessage(messageDecrypted, ShipPlacement.class);
+                                    currentMatch.setMapShip(sp.getShip(), this);
+                                }
+                                break;
+                            case "TURN":
+                                if(currentMatch!=null){
+
+                                }
                                 break;
                             default:
                                 break;

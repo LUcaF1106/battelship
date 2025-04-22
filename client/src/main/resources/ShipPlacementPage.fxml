@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import java.lang.String?>
+
+<BorderPane fx:controller="com.itis._5a.frasson.busanello.client.controller.ShipPlacementController" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <HBox alignment="CENTER" spacing="20">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Battaglia Navale" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <GridPane fx:id="gameGrid" alignment="CENTER" gridLinesVisible="true">
+
+        </GridPane>
+    </center>
+
+    <right>
+        <VBox spacing="15" alignment="CENTER" minWidth="200">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Navi da posizionare" style="-fx-font-weight: bold;"/>
+
+
+            <VBox fx:id="shipsContainer" spacing="10" alignment="CENTER">
+
+                <AnchorPane fx:id="ship1" styleClass="ship" userData="5">
+                    <HBox>
+                        <Rectangle width="30" height="30" fill="darkblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="darkblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="darkblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="darkblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="darkblue" stroke="black" />
+                    </HBox>
+                </AnchorPane>
+
+
+                <AnchorPane fx:id="ship2" styleClass="ship" userData="4">
+                    <HBox>
+                        <Rectangle width="30" height="30" fill="navy" stroke="black" />
+                        <Rectangle width="30" height="30" fill="navy" stroke="black" />
+                        <Rectangle width="30" height="30" fill="navy" stroke="black" />
+                        <Rectangle width="30" height="30" fill="navy" stroke="black" />
+                    </HBox>
+                </AnchorPane>
+
+                <!-- Nave 3 (3 caselle) -->
+                <AnchorPane fx:id="ship3" styleClass="ship" userData="3">
+                    <HBox>
+                        <Rectangle width="30" height="30" fill="royalblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="royalblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="royalblue" stroke="black" />
+                    </HBox>
+                </AnchorPane>
+
+                <!-- Nave 4 (2 caselle) -->
+                <AnchorPane fx:id="ship4" styleClass="ship" userData="2">
+                    <HBox>
+                        <Rectangle width="30" height="30" fill="skyblue" stroke="black" />
+                        <Rectangle width="30" height="30" fill="skyblue" stroke="black" />
+                    </HBox>
+                </AnchorPane>
+
+                <!-- Nave 5 (1 casella) -->
+                <AnchorPane fx:id="ship5" styleClass="ship" userData="1">
+                    <HBox>
+                        <Rectangle width="30" height="30" fill="lightblue" stroke="black" />
+                    </HBox>
+                </AnchorPane>
+            </VBox>
+
+            <Button fx:id="rotateButton" text="Ruota Nave" onAction="#rotateShip" />
+            <Button fx:id="resetButton" text="Ricomincia" onAction="#resetGame" />
+            <Button fx:id="submit" onAction="#submit">Conferma</Button>
+        </VBox>
+    </right>
+
+    <bottom>
+        <HBox alignment="CENTER" spacing="20">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label fx:id="statusLabel" text="Posiziona le tue navi sulla griglia" />
+        </HBox>
+
+    </bottom>
+
+    <style>
+        .root {
+
+        -fx-background-color: #f0f8ff;
+        }
+
+        .ship {
+        -fx-cursor: hand;
+        -fx-padding: 5;
+        -fx-border-color: transparent;
+
+        }
+
+
+
+        #gameGrid {
+        -fx-background-color: white;
+        -fx-border-color: navy;
+        -fx-border-width: 2;
+        -fx-padding: 5;
+        }
+
+        Button {
+        -fx-background-color: #4682b4;
+
+        }
+
+      Button:hover {
+      -fx-background-color: #5792c4;
+      }
+    </style>
+</BorderPane>

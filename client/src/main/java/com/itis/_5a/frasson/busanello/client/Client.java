@@ -15,7 +15,9 @@ public class Client extends Application {
     private final String[][] scenes = {
             {"Login", "/LoginPage.fxml"},
             {"Main", "/MainPage.fxml"},
-            {"Loading", "/LoadingPage.fxml"}
+            {"Loading", "/LoadingPage.fxml"},
+            {"ShipPlacement", "/ShipPlacementPage.fxml"},
+            {"Play", "/GamePage.fxml"}
     };
 
     private SocketClient socketClient;
