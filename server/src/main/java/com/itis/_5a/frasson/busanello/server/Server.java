@@ -5,12 +5,19 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 
 public class Server {
+    private static final Logger LOGGER = LogManager.getLogger(Server.class);
     private static final int PORT = 12345;
     private static Server instance;
     private static final Auth authentication = new Auth();
+
+
 
     public static synchronized Server getInstance() {
         if (instance == null) {
@@ -20,6 +27,7 @@ public class Server {
     }
 
     public static void main(String[] args) {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
         Server server = getInstance();
         server.start();
     }
@@ -34,18 +42,19 @@ public class Server {
         this.auth = auth;
         this.clientList = new ArrayList<>();
         this.queue = new LinkedBlockingQueue<>();
+
     }
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server in ascolto sulla porta " + port);
+            LOGGER.info("Server listening on port " + port);
             Thread tMatch=new Thread(this::matchMaking);
                     tMatch.start();
 
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Nuovo client connesso: " + clientSocket.getInetAddress());
+                LOGGER.info("New client connected: " + clientSocket.getInetAddress());
 
                 ClientHandler c=new ClientHandler(clientSocket, auth);
                 clientList.add(c);
@@ -54,16 +63,18 @@ public class Server {
 
             }
         } catch (IOException e) {
-            System.err.println("Errore nel server: " + e.getMessage());
+            LOGGER.error("Server error", e);
         }
     }
 
     public void matchMaking() {
+        LOGGER.info("Matchmaking service started");
         try {
             while (true) {
                 ClientHandler client1 = queue.take();
+                LOGGER.info("Player 1 ready for matchmaking: " + client1.getId());
                 ClientHandler client2 = queue.take();
-
+                LOGGER.info("Player 2 ready for matchmaking: " + client2.getId());
                 Match match= new Match(client1, client2);
 
                 client1.setCurrentMatch(match);
@@ -71,20 +82,21 @@ public class Server {
 
                 Thread t=new Thread(match);
                 t.start();
+                LOGGER.info("Match created and started between players: " + client1.getId() + " and " + client2.getId());
 
             }
         } catch (InterruptedException e) {
 //            Thread.currentThread().interrupt();
-            System.out.println("Errore durante il matchmaking.");
+            LOGGER.error("Matchmaking error", e);
+
         }
     }
     public void enqueue(ClientHandler client) {
         try {
             queue.put(client);
-
+            LOGGER.info("Player enqueued for matchmaking: " + client.getId());
         } catch (InterruptedException e) {
-
-            System.out.println("Errore durante enqueue.");
+            LOGGER.error("Error during enqueue", e);
         }
     }
 }

@@ -1,0 +1,37 @@
+{
+  "algoritmoHash": "Argon2",
+  "users": [
+    {
+      "username": "$argon2id$v=19$m=16384,t=3,p=1$MTIzNDU2Nzg5MDEyMzQ1Ng$OiPm5tX7StQTCmLRPnakI8Wa3uvRwk8v7xQFjWcQYC4",
+      "password": "$argon2id$v=19$m=16384,t=3,p=1$YWJjZGVmZ2hpamtsbW5vcA$HPBZd8NPN1zOInb5Y3vJiYkzKX/8RXw8zIDPbMvDMVs",
+      "cleartext": {
+        "username": "admin",
+        "password": "password1"
+      }
+    },
+    {
+      "username": "$argon2id$v=19$m=16384,t=3,p=1$5Yq5VjZkZ3M$X4Qw2gR1xT6KlBm7Nn9OoP0QrRsStTuUvVwXxYyZz",
+      "password": "$argon2id$v=19$m=16384,t=3,p=1$aBcDeFgHiJkL$1A2S3D4F5G6H7J8K9L0Q1W2E3R4T5Y6U7I8O9P",
+      "cleartext": {
+        "username": "fras",
+        "password": "lfras"
+      }
+    },
+    {
+      "username": "$argon2id$v=19$m=16384,t=3,p=1$cmFuZG9tc2FsdHZhbHVlcw$sLRBbwl4SRqTAXGDkHjKPEHlYLtVQcPO8+GQsyxwfz0",
+      "password": "$argon2id$v=19$m=16384,t=3,p=1$YW5vdGhlcnNhbHR2YWx1ZQ$Xd93zABVhAGpJIUMR4O4b9zNylHOHEZb6XgBn6hRKQw",
+      "cleartext": {
+        "username": "busa",
+        "password": "rbusa"
+      }
+    },
+    {
+      "username": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$eM/y2b1bVL6S6mTN7i9A1uYgDXYJ4kq8lObSpNjvmo/YmmVmvJ31+6z7obcUViv+TOm57S4O0I5lsGUrKoVBqQ$HqhiJ0tMtze132BtFehFK8ZqngI3irZ433IRoyCGlXqbTN967r+rmS8Ie/+NAi4Ow4kx4Z1ydknoq2dd/a6Zswq0QSvNlgvvpIvvXtEtnGrp8nv7vn3aQU5gC5uLDCcaL07l8c8jGkjhZgDpORO9Ldxe6eNteRWdq/Dp8JcVrbvkGyE8sSIyenCTphTg6y1vELX1UZ/6fGQvetP45BJsFAe72ALDXae3owj9Qlvb5QD4p12iFe7QK2Xu5RHJKxPSk4HBdR8+vKSgPGsy0dTW682+7me1qJKygzCC7Z72xSvvbgrRftZZ0/1aAu3YX+2I/+1Sb47OJ5fufB6jbuzDEQ",
+      "password": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$DPCnARVfcSzdFAtbzSSpOy/yx5u76feTmGS/CdLB49ykRnthsCnN67NFcxuteOnEEO95vg1vrCGKO+ZB+/0yMg$hRoHBVWgofyUJb455RUhRi7m2eIgkOm2JQ6l2tRpx7PlYaIu4fQmB3Qg85i06GyqEy+v6Mgn8Y/cj5sOvVyl/kYTwKLjursyleAi1WcbCC5PrZdsj6mfeHHIBVTXvBg1H6NBrk1FXLtk+df95AqEeNHuKjoGJCvf/KngO4FLJs7wXZfIQQ99z9zb2PLWi/EuUwf1wruTu9/B7itt7Nbdy7AcJNOX6PBBSi8HQszHxLB7cYFGRzHFKe5D/j8U5NqpP3MOkNn6m2z8alKvZf+C329iS7ExOQwxvuCD6J/RWTVe86qmS0SwjhBnUUbFXeRJf8DKjUM8z+oJLS82x4xpQg",
+      "cleartext": {
+        "username": "admin",
+        "password": "admin123"
+      }
+    }
+  ]
+}
