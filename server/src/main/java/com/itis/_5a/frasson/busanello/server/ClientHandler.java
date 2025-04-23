@@ -84,6 +84,10 @@ public class ClientHandler implements Runnable {
                         byte[] messageDecrypted = aes.decrypt(messageEncrypted);
                         Message m = Json.deserialiazedMessage(messageDecrypted);
 
+
+                        if (getState() == 3 && currentMatch != null && m.getType() != "LOGOUT") {
+                            currentMatch.processMessage(this, m, messageDecrypted);
+                        } else {
                         switch (m.getType()) {
                             case "LOGIN":
                                 LoginM mes = Json.deserializedSpecificMessage(messageDecrypted, LoginM.class);
@@ -103,14 +107,10 @@ public class ClientHandler implements Runnable {
                                     currentMatch.setMapShip(sp.getShip(), this);
                                 }
                                 break;
-                            case "TURN":
-                                if(currentMatch!=null){
 
-                                }
-                                break;
                             default:
                                 break;
-                        }
+                        }}
                     }
                 } catch (EOFException e) {
                     disconnect();
