@@ -24,9 +24,9 @@ public class GameController implements Initializable {
     @FXML
     private BorderPane rootPane;
     @FXML
-    private GridPane gameGrid;    // My grid - shows my ships and opponent's hits
+    private GridPane gameGrid;
     @FXML
-    private GridPane opponentGrid; // Opponent's grid - where I make hits
+    private GridPane opponentGrid;
     @FXML
     private Label statusLabel;
 
@@ -60,7 +60,6 @@ public class GameController implements Initializable {
                 Message request = new Message("TURN");
                 Turn response = socketClient.sendAndReceive(Json.serializedMessage(request), Turn.class);
 
-
                 if ("OT".equals(response.getType())) {
                     isMyTurn = false;
                     Platform.runLater(() -> statusLabel.setText("Attendi l'avversario"));
@@ -71,15 +70,22 @@ public class GameController implements Initializable {
 
                 setupMap(response.getShipPlace(), response.getMoves());
 
-                if (!isMyTurn) {
-                    waitForOpponentMove();
-                }
 
                 while (!gameOver) {
                     if (!isMyTurn) {
                         waitForOpponentMove();
-                    }
 
+                        if (!gameOver) {
+                            isMyTurn = true;
+                            Platform.runLater(() -> statusLabel.setText("È il tuo turno. Fai una mossa."));
+                        }
+                    } else {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
 
             } catch (Exception e) {
@@ -96,14 +102,9 @@ public class GameController implements Initializable {
 
             processResultMove(move);
 
-            isMyTurn = true;
-
-//            Platform.runLater(() -> {
-//            statusLabel.setText("È il tuo turno. Fai una mossa.");
-//            });
-
             if (move.isGameOver()) {
-                handleGameOver(move.getRmove().contains("Vittoria"));
+
+                handleGameOver(false);
             }
 
         } catch (Exception e) {
@@ -117,12 +118,22 @@ public class GameController implements Initializable {
             int x = move.getX();
             int y = move.getY();
 
+            String result = move.getRmove();
+
+            if (result.equals("VITTORIA") || result.equals("SCONFITTA")) {
+                statusLabel.setText(result.equals("VITTORIA") ?
+                        "Hai vinto la partita!" :
+                        "Hai perso la partita.");
+                return;
+            }
+
+
             if (!isMyTurn) {
-                updateOpponentCell(x, y, move.getRmove());
-                statusLabel.setText("Hai colpito: " + move.getRmove());
+                updateOpponentCell(x, y, result);
+                statusLabel.setText("Hai colpito: " + result);
             } else {
-                updateMyCell(x, y, move.getRmove());
-                statusLabel.setText("L'avversario ha colpito: " + move.getRmove());
+                updateMyCell(x, y, result);
+                statusLabel.setText("L'avversario ha colpito: " + result);
             }
         });
     }
@@ -258,9 +269,6 @@ public class GameController implements Initializable {
 
         System.out.println("Attacking: Row " + clickedRow + ", Col " + clickedCol);
         sendMove(clickedRow, clickedCol);
-
-        isMyTurn = false;
-        Platform.runLater(() -> statusLabel.setText("Attendi l'avversario"));
     }
 
     private void sendMove(int clickedRow, int clickedCol) {
@@ -273,13 +281,12 @@ public class GameController implements Initializable {
             processResultMove(result);
 
             if (result.isGameOver()) {
-                handleGameOver(result.getRmove().contains("Vittoria"));
+                handleGameOver(true);
                 return;
             }
 
-            if (!isMyTurn) {
-                waitForOpponentMove();
-            }
+            isMyTurn = false;
+            Platform.runLater(() -> statusLabel.setText("Attendi l'avversario"));
 
         } catch (Exception e) {
             System.err.println("Error sending move: " + e.getMessage());
