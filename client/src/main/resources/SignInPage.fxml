@@ -5,7 +5,7 @@
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.itis._5a.frasson.busanello.client.controller.LoginController"
+      fx:controller="com.itis._5a.frasson.busanello.client.controller.SignInController"
       alignment="CENTER"
       spacing="20">
 
@@ -13,7 +13,7 @@
         <Insets top="40" right="40" bottom="40" left="40"/>
     </padding>
 
-    <Label text="Login"
+    <Label text="Sign In"
            style="-fx-font-size: 24px; -fx-font-weight: bold;">
         <VBox.margin>
             <Insets bottom="10" />
@@ -28,23 +28,22 @@
                    promptText="Password"
                    style="-fx-background-radius: 5; -fx-padding: 10px;"/>
 
-    <Button fx:id="loginButton" text="Login" onAction="#handleLogin">
+    <PasswordField fx:id="confirmPasswordField"
+                   promptText="Confirm Password"
+                   style="-fx-background-radius: 5; -fx-padding: 10px;"/>
+
+    <Button fx:id="signInButton" text="Sign In" onAction="#handleSignIn">
         <VBox.margin>
             <Insets top="10" />
         </VBox.margin>
     </Button>
 
-    <Button text="Sign In" onAction="#handleSignIn">
+    <Hyperlink text="Back to Login" onAction="#handleBackToLogin">
         <VBox.margin>
             <Insets top="5" />
         </VBox.margin>
-    </Button>
-
-    <Hyperlink text="Accedi senza credenziali" onAction="#hadleWithoutLogin">
-    <VBox.margin>
-        <Insets top="5" />
-    </VBox.margin>
     </Hyperlink>
+
     <Label fx:id="messageLabel"
            style="-fx-text-fill: red;"/>
 </VBox>

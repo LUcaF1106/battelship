@@ -14,6 +14,7 @@ public class Client extends Application {
 
     private final String[][] scenes = {
             {"Login", "/LoginPage.fxml"},
+            {"SignIn", "/SignInPage.fxml"},
             {"Main", "/MainPage.fxml"},
             {"Loading", "/LoadingPage.fxml"},
             {"ShipPlacement", "/ShipPlacementPage.fxml"},

@@ -59,6 +59,12 @@ public class LoginController {
         loadMainScreen(false);
     }
 
+    @FXML
+    private void handleSignIn() {
+        SceneManager sm = SceneManager.getInstance();
+        sm.switchTo("SignIn");
+    }
+
     private void loadMainScreen(boolean auth) {
         ClientInfo clientInfo=ClientInfo.getInstance();
         clientInfo.setValue(auth);

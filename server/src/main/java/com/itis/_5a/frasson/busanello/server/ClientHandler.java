@@ -7,7 +7,7 @@ import java.net.Socket;
 import com.itis._5a.frasson.busanello.common.Json;
 import com.itis._5a.frasson.busanello.common.KeyExchange;
 import com.itis._5a.frasson.busanello.common.AES;
-import com.itis._5a.frasson.busanello.common.Message.LoginM;
+import com.itis._5a.frasson.busanello.common.Message.*;
 import com.itis._5a.frasson.busanello.common.Message.Message;
 import com.itis._5a.frasson.busanello.common.Message.ShipPlacement;
 import lombok.Getter;
@@ -107,6 +107,10 @@ public class ClientHandler implements Runnable {
                                 LoginM mes = Json.deserializedSpecificMessage(messageDecrypted, LoginM.class);
                                 Login(mes.getUser(), mes.getPassword());
                                 break;
+                            case "SIGNUP":
+                                SignUpM msg = Json.deserializedSpecificMessage(messageDecrypted, SignUpM.class);
+                                SignUp(msg.getUser(), msg.getPassword());
+                                break;
                             case "LOGOUT":
                                 Logout();
                                 break;
@@ -161,6 +165,26 @@ public class ClientHandler implements Runnable {
         }
         objectOut.flush();
     }
+
+    private void SignUp(String username, String password) throws Exception {
+        LOGGER.info("Sign in attempt: " + username);
+
+        if (auth.signIn(username, password)) {
+            this.username = username;
+            this.isAuthenticated = true;
+            Message message = new Message("ACC");
+
+            objectOut.writeObject(aes.encrypt(Json.serializedMessage(message)));
+            LOGGER.info("User added: " + username);
+
+        } else {
+            Message message = new Message("AUTHERR");
+            objectOut.writeObject(aes.encrypt(Json.serializedMessage(message)));
+            LOGGER.info("Error while adding user: " + username);
+        }
+        objectOut.flush();
+    }
+
 
     private void Logout() {
         LOGGER.info("User logging out: " + username);

@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.io.File;
 
 import com.password4j.types.Argon2;
 import org.apache.logging.log4j.Level;
@@ -74,16 +75,46 @@ public class Auth {
 
             Argon2Function argon2 = Argon2Function.getInstance(16384, 3, 1, 256, Argon2.ID);
             boolean result = Password.check(securePassword, user.getPassword()).with(argon2);
-            LOGGER.debug("Verifica password per " + username +
-                    "Hash salvato: " + user.getPassword() +
-                    "Hash calcolato: " + Password.hash(password).with(argon2).getResult());
+
             LOGGER.info("Authentication for user " + username + ": " + (result ? "successful" : "failed"));
             return result;
         } finally {
             securePassword.clear(); // Manually clear the sensitive data
         }
     }
+    public boolean signIn(String username, String password) {
+        LOGGER.debug("Tentativo di registrazione per l'utente: " + username);
 
+        // Verifica se i campi sono vuoti
+        if (username == null || password == null ||
+                username.isEmpty() || password.isEmpty()) {
+            LOGGER.warn("Registrazione fallita: campi username o password vuoti");
+            return false;
+        }
+
+        // Verifica se l'utente esiste già
+        if (findUserByUsername(username).isPresent()) {
+            LOGGER.warn("Registrazione fallita: username già in uso: " + username);
+            return false;
+        }
+
+        // Procedi con l'aggiunta dell'utente
+        boolean result = addUser(username, password);
+
+        if (result) {
+            // Assicuriamoci che i dati siano salvati
+            if (saveUserDatabase()) {
+                LOGGER.info("Utente registrato con successo: " + username);
+            } else {
+                LOGGER.error("Registrazione riuscita ma impossibile salvare il database utenti");
+                // Potremmo decidere di ritornare comunque true perché l'utente è in memoria
+            }
+        } else {
+            LOGGER.error("Registrazione fallita: impossibile aggiungere l'utente al database: " + username);
+        }
+
+        return result;
+    }
     public boolean addUser(String username, String password) {
         // Check if user already exists
         if (findUserByUsername(username).isPresent()) {
@@ -112,7 +143,6 @@ public class Auth {
             newUser.setCleartext(cleartext);
 
             userDb.getUsers().add(newUser);
-            saveUserDatabase();
 
             LOGGER.info("Added new user: " + username);
             return true;
@@ -162,12 +192,24 @@ public class Auth {
         }
     }
 
-    private void saveUserDatabase() {
-        try (FileWriter writer = new FileWriter(USER_FILE)) {
-            gson.toJson(userDb, writer);
-            LOGGER.info("User database saved successfully");
+    private boolean saveUserDatabase() {
+        String filePath = getUserFilePath();
+        try {
+            // Assicurati che la directory esista
+            File file = new File(filePath);
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            try (FileWriter writer = new FileWriter(file)) {
+                gson.toJson(userDb, writer);
+                LOGGER.info("User database saved successfully to: " + filePath);
+                return true;
+            }
         } catch (IOException e) {
-            LOGGER.error("Error saving user database", e);
+            LOGGER.error("Error saving user database to: " + filePath, e);
+            return false;
         }
     }
 
