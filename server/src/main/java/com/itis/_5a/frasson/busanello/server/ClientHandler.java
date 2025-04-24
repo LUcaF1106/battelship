@@ -22,6 +22,7 @@ public class ClientHandler implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class);
     private static long counter = 0;
 
+    @Getter
     private final Socket clientSocket;
     private final Auth auth;
 
@@ -125,7 +126,18 @@ public class ClientHandler implements Runnable {
                                     currentMatch.setMapShip(sp.getShip(), this);
                                 } else LOGGER.warn("Received ship placement from client without active match: " + id);
                                 break;
-
+                            case "EXIT": if(getState()==0){
+                                LOGGER.info("Client disconencted");
+                                disconnect();
+                            }else if(getState()==1){
+                                LOGGER.info("Client " + id + " canceled matchmaking");
+                                server.removeFromQueue(this);
+                                disconnect();
+                            }else{
+                                currentMatch.handleDisconnect(this);
+                                disconnect();
+                            }
+                                break;
                             default:
                                 LOGGER.warn("Unknown message type from client " + id + ": " + m.getType());
                                 break;
@@ -234,19 +246,36 @@ public class ClientHandler implements Runnable {
         }
     }
     public void disconnect() {
-       // isconnected = false;
+
         try {
+            server.clientDisconnected(this);
+
+            if (objectOut != null) objectOut.close();
+            if (objectIn != null) objectIn.close();
             if (out != null) out.close();
             if (in != null) in.close();
-            if(objectIn !=null) objectIn.close();
-            if(objectOut!=null) objectOut.close();
-            if (clientSocket != null) clientSocket.close();
+            if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+
+            LOGGER.info("Client resources cleaned up: " + id);
         } catch (IOException e) {
-            LOGGER.warn("Error during disconnect: " + e.getMessage(), e);
+            LOGGER.warn("Error during disconnect for client " + id + ": " + e.getMessage());
         }
     }
+
     public static synchronized String generateId() {
         return System.currentTimeMillis() + "-" + (counter++);
+    }
+
+    public boolean isConnected() {
+        return !clientSocket.isClosed();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ClientHandler that = (ClientHandler) obj;
+        return id.equals(that.id);
     }
 
 

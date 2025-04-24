@@ -33,9 +33,13 @@ public class Auth {
 
     private String getUserFilePath() {
         try {
-            return getClass().getClassLoader().getResource(USER_FILE).toURI().getPath();
+
+            File file = new File(getClass().getClassLoader().getResource(USER_FILE).toURI());
+            return file.getPath();
         } catch (Exception e) {
-            throw new RuntimeException("File users.json non trovato in resources!", e);
+            String relativePath = "src/main/resources/" + USER_FILE;
+            LOGGER.warn("Resource not found, using relative path: " + relativePath);
+            return relativePath;
         }
     }
     public Auth() {
@@ -48,7 +52,6 @@ public class Auth {
             this.userDb = new UserDatabase();
             this.userDb.setAlgoritmoHash("Argon2");
             this.userDb.setUsers(new ArrayList<>());
-            // Add default admin user if database was newly created
             addUser("admin", "admin123");
             saveUserDatabase();
         } else {
@@ -79,35 +82,33 @@ public class Auth {
             LOGGER.info("Authentication for user " + username + ": " + (result ? "successful" : "failed"));
             return result;
         } finally {
-            securePassword.clear(); // Manually clear the sensitive data
+            securePassword.clear();
         }
     }
     public boolean signIn(String username, String password) {
         LOGGER.debug("Tentativo di registrazione per l'utente: " + username);
 
-        // Verifica se i campi sono vuoti
         if (username == null || password == null ||
                 username.isEmpty() || password.isEmpty()) {
             LOGGER.warn("Registrazione fallita: campi username o password vuoti");
             return false;
         }
 
-        // Verifica se l'utente esiste già
         if (findUserByUsername(username).isPresent()) {
             LOGGER.warn("Registrazione fallita: username già in uso: " + username);
             return false;
         }
 
-        // Procedi con l'aggiunta dell'utente
+
         boolean result = addUser(username, password);
 
         if (result) {
-            // Assicuriamoci che i dati siano salvati
+
             if (saveUserDatabase()) {
                 LOGGER.info("Utente registrato con successo: " + username);
             } else {
                 LOGGER.error("Registrazione riuscita ma impossibile salvare il database utenti");
-                // Potremmo decidere di ritornare comunque true perché l'utente è in memoria
+
             }
         } else {
             LOGGER.error("Registrazione fallita: impossibile aggiungere l'utente al database: " + username);
@@ -116,13 +117,13 @@ public class Auth {
         return result;
     }
     public boolean addUser(String username, String password) {
-        // Check if user already exists
+
         if (findUserByUsername(username).isPresent()) {
             LOGGER.warn("Failed to add user: Username already exists: " + username);
             return false;
         }
 
-        // Create secure hash of password
+
         SecureString securePassword = new SecureString(password.toCharArray());
         try  {
             Argon2Function argon2 = Argon2Function.getInstance(16384, 3, 1, 256, Argon2.ID);
@@ -130,13 +131,12 @@ public class Auth {
             String hashedUsername = Password.hash(username).with(argon2).getResult();
             String hashedPassword = Password.hash(securePassword).with(argon2).getResult();
 
-            // Create new user and add to database
+
             User newUser = new User();
             newUser.setUsername(hashedUsername);
             newUser.setPassword(hashedPassword);
 
-            // In production, you would NOT store cleartext credentials
-            // This is just for demonstration/development
+
             Cleartext cleartext = new Cleartext();
             cleartext.setUsername(username);
             cleartext.setPassword(password);
@@ -175,13 +175,13 @@ public class Auth {
     }
 
     private UserDatabase loadUserDatabase() {
-        Path filePath = Paths.get(getUserFilePath());
-        if (!Files.exists(filePath)) {
-            LOGGER.info("User database file not found: " + getUserFilePath());
+        File file = new File(getUserFilePath());
+        if (!file.exists()) {
+            LOGGER.info("User database file not found: " + file.getAbsolutePath());
             return null;
         }
 
-        try (FileReader reader = new FileReader(getUserFilePath())) {
+        try (FileReader reader = new FileReader(file)) {
             UserDatabase db = gson.fromJson(reader, UserDatabase.class);
             LOGGER.info("User database loaded successfully with " +
                     (db.getUsers() != null ? db.getUsers().size() : 0) + " users");
@@ -191,11 +191,10 @@ public class Auth {
             return null;
         }
     }
-
     private boolean saveUserDatabase() {
         String filePath = getUserFilePath();
         try {
-            // Assicurati che la directory esista
+
             File file = new File(filePath);
             File parentDir = file.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
@@ -213,7 +212,6 @@ public class Auth {
         }
     }
 
-    // Data classes for JSON serialization/deserialization
     private static class UserDatabase {
         @SerializedName("algoritmoHash")
         private String algoritmoHash;

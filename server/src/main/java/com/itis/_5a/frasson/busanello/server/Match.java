@@ -7,6 +7,7 @@ import com.itis._5a.frasson.busanello.common.Message.ResultMove;
 import com.itis._5a.frasson.busanello.common.Message.Turn;
 
 public class Match implements Runnable {
+
     private boolean sendTurn = false;
     private ClientHandler client1;
     private ClientHandler client2;
@@ -35,6 +36,8 @@ public class Match implements Runnable {
 
     @Override
     public void run() {
+
+
         //Al avvio del thread imosta lo stato a 2 che significa che sono entrati su un match ee indica al client che è stato trovato un match
         client1.setState(2);
         client2.setState(2);
@@ -92,16 +95,16 @@ public class Match implements Runnable {
     public synchronized void setInitialTurn(ClientHandler c) throws Exception {
         if (!sendTurn) {
             if (c == client1) {
-                // Client1's turn - send their ships and moves on client2's board
+
                 client1.sendMessage(new Turn("YT", mapShip1, moveMap1));
-                // Client2 waiting - send their ships and moves client1 made on their board
+
                 client2.sendMessage(new Turn("OT", mapShip2, moveMap2));
                 c1turn = true;
                 System.out.println("Turno iniziale del client1");
             } else if (c == client2) {
-                // Client2's turn - send their ships and moves on client1's board
+
                 client2.sendMessage(new Turn("YT", mapShip2, moveMap2));
-                // Client1 waiting - send their ships and moves client2 made on their board
+
                 client1.sendMessage(new Turn("OT", mapShip1, moveMap1));
                 c1turn = false;
                 System.out.println("Turno iniziale del client2");
@@ -113,7 +116,7 @@ public class Match implements Runnable {
 
 
     public String checkMoves(int x, int y, int[][] map, int[][] moves) {
-        // Check boundaries
+
         if (x < 0 || x >= map.length || y < 0 || y >= map[0].length) {
             System.out.println("Invalid coordinates: [" + x + "," + y + "]");
             return "ACQUA";
@@ -172,7 +175,9 @@ public class Match implements Runnable {
                     System.out.println("Move details: [" + move.getX() + "," + move.getY() + "]");
                     handleMove(client, move);
                     break;
-
+                case "EXIT":
+                    System.out.println((client == client1 ? "Player 1" : "Player 2")+ "is disconnected");
+                    break;
                 default:
                     System.out.println("Unhandled game message type: " + message.getType());
                     break;
@@ -247,4 +252,40 @@ public class Match implements Runnable {
             System.out.println("=========================");
         }
     }
+    public void handleDisconnect(ClientHandler disconnectedPlayer) {
+
+        System.out.println("Player disconnected from match: " + disconnectedPlayer.getId());
+
+        try {
+            ClientHandler opponent = (disconnectedPlayer.equals(client1)) ? client2 : client1;
+
+            if (opponent.isConnected()) {
+                Message disconnectMessage = new Message("OPPONENT_DISCONNECTED");
+                opponent.sendMessage(disconnectMessage);
+
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error handling disconnect in match"+ e);
+        } finally {
+            handleMatchEnd();
+        }
+    }
+
+    private void handleMatchEnd() {
+
+        System.out.println("Match ended between " + client1.getId() + " and " + client2.getId());
+
+        client1.setCurrentMatch(null);
+        client2.setCurrentMatch(null);
+
+        if (client1.isConnected()) {
+            client1.setState(0);
+        }
+
+        if (client2.isConnected()) {
+            client2.setState(0);
+        }
+    }
+
 }
