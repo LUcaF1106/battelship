@@ -1,6 +1,7 @@
 package com.itis._5a.frasson.busanello.client;
 
 import com.itis._5a.frasson.busanello.common.*;
+import com.itis._5a.frasson.busanello.common.Message.Message;
 import lombok.Getter;
 
 
@@ -66,20 +67,23 @@ public class SocketClient implements Runnable{
         }
     }
 
-    public <T> T receiveMessage(Class<T> tClass) {
-        try {
+    public <T> T receiveMessage(Class<T> tClass)throws Exception {
+
+        if(!socket.isClosed()) {
+
 
             byte[] encmsg = (byte[]) objectIn.readObject();
             return Json.deserializedSpecificMessage(aesKey.decrypt(encmsg), tClass);
-        } catch (IOException e) {
-            System.err.println("Error receiving message: " + e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         return null;
     }
 
     public void disconnect() {
+        try {
+            sendMessage(Json.serializedMessage(new Message("EXIT")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         isconnected = false;
         try {
             if (out != null) out.close();
@@ -122,7 +126,7 @@ public class SocketClient implements Runnable{
 
         } catch (Exception e) {
             System.err.println("Errore creazione comunicazione sicura: " + e.getMessage());
-            e.printStackTrace(); // Aggiungi questo per il debug
+            e.printStackTrace();
             disconnect();
         }
     }

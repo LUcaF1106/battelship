@@ -14,6 +14,7 @@ public class Client extends Application {
 
     private final String[][] scenes = {
             {"Login", "/LoginPage.fxml"},
+            {"SignIn", "/SignInPage.fxml"},
             {"Main", "/MainPage.fxml"},
             {"Loading", "/LoadingPage.fxml"},
             {"ShipPlacement", "/ShipPlacementPage.fxml"},
@@ -28,6 +29,12 @@ public class Client extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         primaryStage.setTitle("Socket Application");
+        primaryStage.setOnCloseRequest(windowEvent -> {
+            SocketClient sc= SocketClient.getInstance();
+            sc.disconnect();
+            socketThread.interrupt();
+            Thread.currentThread().interrupt();
+        });
         SceneManager sceneManager=SceneManager.getInstance();
         sceneManager.setStage(primaryStage);
 
@@ -59,8 +66,6 @@ public class Client extends Application {
 
     private void closeSocket() throws Exception {
         if (socketClient != null && socketClient.isIsconnected()) {
-
-            socketClient.sendMessage(Json.serializedMessage(new Message("LOGOUT") ));
             socketClient.disconnect();
         }
 

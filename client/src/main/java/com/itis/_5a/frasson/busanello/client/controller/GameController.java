@@ -10,6 +10,7 @@ import com.itis._5a.frasson.busanello.common.Message.Turn;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -99,7 +100,14 @@ public class GameController implements Initializable {
         try {
             SocketClient socketClient = SocketClient.getInstance();
             ResultMove move = socketClient.receiveMessage(ResultMove.class);
-
+            if (move == null) {
+                handleNetworkError();
+                return;
+            }
+            if ("OPPONENT_DISCONNECTED".equals(move.getType())) {
+                handleOpponentDisconnected();
+                return;
+            }
             processResultMove(move);
 
             if (move.isGameOver()) {
@@ -108,8 +116,10 @@ public class GameController implements Initializable {
             }
 
         } catch (Exception e) {
+
             System.err.println("Error waiting for opponent move: " + e.getMessage());
             e.printStackTrace();
+
         }
     }
 
@@ -120,7 +130,7 @@ public class GameController implements Initializable {
 
             String result = move.getRmove();
 
-            if (result.equals("VITTORIA") || result.equals("SCONFITTA")) {
+            if ("VITTORIA".equals(result) || "SCONFITTA".equals(result)) {
                 statusLabel.setText(result.equals("VITTORIA") ?
                         "Hai vinto la partita!" :
                         "Hai perso la partita.");
@@ -128,12 +138,16 @@ public class GameController implements Initializable {
             }
 
 
-            if (!isMyTurn) {
-                updateOpponentCell(x, y, result);
-                statusLabel.setText("Hai colpito: " + result);
-            } else {
-                updateMyCell(x, y, result);
-                statusLabel.setText("L'avversario ha colpito: " + result);
+            try {
+                if (!isMyTurn) {
+                    updateOpponentCell(x, y, result);
+                    statusLabel.setText("Hai colpito: " + result);
+                } else {
+                    updateMyCell(x, y, result);
+                    statusLabel.setText("L'avversario ha colpito: " + result);
+                }
+            }catch (Exception e){
+                handleOpponentDisconnected();
             }
         });
     }
@@ -188,8 +202,7 @@ public class GameController implements Initializable {
             }
 
             disableGridInteractions();
-
-            //TODO : ritornare al main e inviare statistiche
+showInfoAlert("Vittoria", "hai vinto");
         });
     }
 
@@ -277,7 +290,19 @@ public class GameController implements Initializable {
             Move move = new Move(clickedRow, clickedCol);
             socketClient.sendMessage(Json.serializedMessage(move));
 
+
+
             ResultMove result = socketClient.receiveMessage(ResultMove.class);
+
+
+            if (result == null) {
+                handleNetworkError();
+                return;
+            }
+            if ("DISCONNECTED".equals(result.getType())) {
+                handleOpponentDisconnected();
+                return;
+            }
             processResultMove(result);
 
             if (result.isGameOver()) {
@@ -290,7 +315,43 @@ public class GameController implements Initializable {
 
         } catch (Exception e) {
             System.err.println("Error sending move: " + e.getMessage());
+            handleNetworkError();
             e.printStackTrace();
         }
+    }
+    private void handleOpponentDisconnected() {
+        Platform.runLater(() -> {
+            statusLabel.setText("L'avversario si è disconnesso! Vittoria automatica.");
+            disableGridInteractions();
+            handleGameOver(true);
+
+        });
+    }
+
+    private void handleNetworkError() {
+
+        Platform.runLater(() -> {
+            statusLabel.setText("Errore di connessione con il server");
+            showErrorAlert("Errore connessione", "Errore di connesione al server");
+            disableGridInteractions();
+        });
+    }
+    public void showInfoAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+        SceneManager sceneManager=SceneManager.getInstance();
+        sceneManager.switchTo("Main");
+    }
+    public void showErrorAlert(String title, String errorMessage) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText("Si è verificato un errore");
+        alert.setContentText(errorMessage);
+        alert.showAndWait();
+        SceneManager sceneManager=SceneManager.getInstance();
+        sceneManager.switchTo("Main");
     }
 }

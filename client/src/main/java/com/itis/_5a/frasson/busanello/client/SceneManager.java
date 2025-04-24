@@ -1,5 +1,6 @@
 package com.itis._5a.frasson.busanello.client;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
