@@ -126,7 +126,7 @@ public class SocketClient implements Runnable{
 
         } catch (Exception e) {
             System.err.println("Errore creazione comunicazione sicura: " + e.getMessage());
-            e.printStackTrace(); // Aggiungi questo per il debug
+            e.printStackTrace();
             disconnect();
         }
     }

@@ -1,0 +1,37 @@
+{
+  "algoritmoHash": "Argon2",
+  "users": [
+    {
+      "username": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$BEYfDPSqDu3GO5GLdY+t9RE4Yo5CxGchnYZEW2W9zJylODCgRfh8UueW/xgPV7JS3TaCf+0+ea7OVwxV+M46Bw$76WNRBmn7wWF5w7KdGhxs8lyNN2h+MkJGgDhes8aJOdcw4hAEOtGm6lUbzJPOt7342oeUFa29uR+jLOSYDKbaWUe3Cs/L3kc8U7rXT4h2FcvMhej+XfnILnbGhBZlQDDDm6XJwFyXG2k188oUwxaKmY21JO1nBXa8ThMAA7fIdSg7AJiErN93Ew7bDZ6c1Gq2OK5NTgb2fXurvV/LIeN8ts2ssWUIzdDP4nj75t1VyXA3iWX6GABdui3oAkHqQGcuBKcPuMNCIrVRyTT8AKmAGJ022U6Ab5HNsoxChaDgkuP+Zp8il1h623GEoYt5jAwXlZvWWyZGINoOoQ0i8O4bA",
+      "password": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$MdVXnYf/3KwHLk0PNKnxXoM/R4ddGLfQJAYLVMhhLVdpkmLgFfbbX3bh4zbXVrHYq9sFjJR/Rim0FHT56+Nm5w$d9FmmmN1rMOW2IHnW/ufOQ2nIWdIw9YCH/FKQ0YwnANe+9hHB+usW3JTyJbWpnHf3WsU1vbqL9g9vXXOLw2yuOBXiKB2U7+4KjolkH6Ikr4+yuzjj/oqYiuyqQELnnkjlZvVoq3WL8kNqipRe668N4uZh0SLmSnh8Ou+K6s9st9xSLBDzF7NrtP5Da0lHR17DhTsCXfFeG+RJBTaM1ZwiegXE8ICosZ2L4EtbWGSnAmU3b067jcjMZfdhqDrOhM0/hdrCJsd+UQROTca3QqeqFC0304a9MxqH+cinn4U8RihbtpOLBLUskQ1hN2EIFTDliBrwt8Au8YL8RkWoSR5gQ",
+      "cleartext": {
+        "username": "admin",
+        "password": "admin123"
+      }
+    },
+    {
+      "username": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$XdwfL0FreLw0sE5LgMhyK94a6QzL+8+t7krYvvoU8Rs2fxysuB7FyJhuwe99+Ww02l5GifPjaWEkDdflSWHKmQ$SHnl1psOR86vzgsQjD65H+joUvUBXN2ii/rU9KZrbOLGy6RUkH6KcSGld7aAutTPJeUWxDmqGebh4HApRcXlMqYAxiPWsrD/ZuNkKjbcVOJhF4CmXESCPWhrCarcfGnFSU1PVDhdXpjrNlaOKsblkAm1Z26hegvZa6VeodHlPnKdOqKhpPOOp8a0ifRdKThDi9JSGSF9AYHp2KHSUgucfybqHh+VRdi1GOAQwfbjKNCkw1hP+zdih86lV/AF83Z5HmYfVlRWAnUqrjMWLmOiopxJByqfnw44+9W0guSELRkdie7UDGgsnpf4NIhNCC79DG9ZPsHjC11fvWukV2zETw",
+      "password": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$2BL2DG4efxcwaDpYzTELfnnhSo0NhA8hE3cjCZV1NscSSfkmZnzp7Ny9BYx4I+PCvDPHKTkM6jcZ13Vc1xg1kQ$j5YKLVPOJqw7LhikrIwbIbKgJ8ninbQ0pPIGOXi3g9Ohs3g1ZqV1DwEJt1fLuiD4/2Bre5mlPcdPfahPZKiy3beK9YhIeftzYDRDm/y3ZjAjuS7Oj81F4bQvB4KmxSRFxDmbrI3LNcyP/DtMitAmKQtYOUrjemm8OpfJH6doBlO4rblNWV1wRHuz5r83n2pgFrb8cxcS8eT4jeEGRIsLuwSqQJJ226y2Aauzemj3PFRHEqgXUaEXdbzF8ec++8AGbZtm3LyAHoSsEaIwaoak/40SmDkEz/NiuolWALdVpO5JUlYjbdoOrD9CVp/MlrDSbCmIuDOqJI9ktaX9pxoklw",
+      "cleartext": {
+        "username": "user",
+        "password": "user"
+      }
+    },
+    {
+      "username": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$jGqY5HdlLcYh5bLWDRlI+CwtSvz2rBVOIOt/meft7mcYn19Xd6SG4velVv0C7VjENdI/Cjf1oBgdGOoY7/Qufw$NywdDTtZbOMCkVlW5ou1wJuMnxKo3mw+K0Sz6KrYk/JyLoBonZAsFpOTCbYq92bAxUUxkkW6mR7yvbsXmOAUn4Xiig4dndqa4TwFiyNes32nLKciH40tw8YvuZ+DBQa5PyGlc0z0z8HDoWxEOk6HEgSzYT11lb+QDKTZi6600kI6xj/AFM2BvArijPCKGry9AS5VwQw0jgK4LKNcOG7gpDIQalcWktwCOYc3GGyRRKnKQE7lea+wSxdumyqJ3IX8H8Uj2dalq1AYeO1U+SIp8cYz/f/sdULRTPejg/sTk/ORf1toqJrmUr7Q0le+TiynL8+veF0aeMfWHKiY6zQT7Q",
+      "password": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$pefQ1pQeSdHAsn8eofvxQ2QsjuSV0EAmNCGwBK65u/emplZhC2mzHCtxKloHuhgf4X3s10vrXFrbXnawlQrFmw$clJMWkCyBMFdjhsMSxUDB9PZMbZDycN64OM9KoxxVVqvC0rhxpv+NXCIdE/xh2AETw/HOXSnjOvXKQre3ldjK2Yk9HTbFz+P9P9FLBzpHk0Zwpb8cr6ysoS/2omKqIYWiTlbMEU+XMJMrar0xqKG5DIAZtcaNXcHYA7HQYJdT5jv5fPKUdNoxZOFhaUAye50zRZBB3+lIzqIOUU5tFbDhlfzQwnfGkPYCE4LhMqEpv5whOXXUqZmu8UX5/q+AGKwrEKKcqHkvCzB4Tgez9UXtOC4d1zCPF8CJCXu5uCRrwgQKlq/wGKZ+ofloQH5M6cmwpueiU/7yb/k+C3mhfQxqg",
+      "cleartext": {
+        "username": "busa",
+        "password": "busa"
+      }
+    },
+    {
+      "username": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$m7M2BnC8roQRFHNqEDegXtPyy/XQQlYo+TNJQ+yRKKIaZqo4FGCRSmyEI3aKgwQeB/eRJMKUJyJN0iCgvAR9Pg$XTAk737dI5+p6tzwaLV8KYmW4qJeGJaqnGYrvcwob2HYo42CyQwHeGlNNLhztZjC16vPiVX4HBXSrxWLw6T/FbHmQ5rknGy+f0GlcFKHA95UA3FNQiEw//T4D1Ys1CoEgOXJjDDSTrgvoGckbOIiCGd2rTzz1rBqZXEozZZZdYTNZGJJZ0yjoBpH1qCGPOofNPEifMInd6SugwfntlxIlrsKrD6/aGXnPn2snhva6QzWE/O9zu4REZglTnYDyyfVfpxPlDixJLh+ton5ljU/gzwY11hHQMKf38FuEQaKUrzZibMxudnX/AZQ456TfFpNV/y85qguqSC2srqcXkooKQ",
+      "password": "$argon2id$v\u003d19$m\u003d16384,t\u003d3,p\u003d1$yBhR48lbcdANtaBxHDLgQR4e0wiTxZSNpHMZwz/HpdshAv+RDlMeKaBlyqP+nHQgZEKklFHoAB4sgp079KciJw$C1kN5XyXw2Y1j8KVHhOVbRFedpBtJm/Ow2eLXvyNaWVw3PYRNp7xQWkrh4vm4gecuFydgpRZYc4xzah4a1lLY+8BozbfneG2YheVjmrUJmLIXImEX1nSWZnwW/l4YjORejPlKvErZ0vYVBmpQaDiKieqhNd7wB+Iqhv7h0GERuY29+Kooz+Q6fH7d9MbccgeB972rQ+ne0Vh7QhMcCymbeAbuUxT9e0IeURLvFn5B9mnlnJ2rpcaup+exADI/roQObhj7lLzcZASRo4+64PPPAAQSVT7dw8ywBHnCxgKZUoxH2pioDEE7Ykp+O52ifQ8s7h7CCIeP3KG6uJZ7nIRfw",
+      "cleartext": {
+        "username": "fras",
+        "password": "fras"
+      }
+    }
+  ]
+}

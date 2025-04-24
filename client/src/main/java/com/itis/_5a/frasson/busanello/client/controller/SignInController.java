@@ -50,7 +50,7 @@ public class SignInController {
                 // Send to server and get response
                 Message response = socketClient.sendAndReceive(Json.serializedMessage(signUpMessage), Message.class);
 
-                if ("ACC_REG".equals(response.getType())) {
+                if ("ACC".equals(response.getType())) {
                     messageLabel.setText("Registration successful!");
                     messageLabel.setStyle("-fx-text-fill: green;");
 

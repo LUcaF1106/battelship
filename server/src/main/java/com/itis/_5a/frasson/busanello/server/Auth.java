@@ -30,20 +30,24 @@ public class Auth {
     private static final String USER_FILE = "users.json";
     private final UserDatabase userDb;
     private final Gson gson;
+    private final String userFilePath;
 
     private String getUserFilePath() {
-        try {
-
-            File file = new File(getClass().getClassLoader().getResource(USER_FILE).toURI());
-            return file.getPath();
-        } catch (Exception e) {
-            String relativePath = "src/main/resources/" + USER_FILE;
-            LOGGER.warn("Resource not found, using relative path: " + relativePath);
-            return relativePath;
-        }
+        return userFilePath;
     }
+
     public Auth() {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
+
+        String appDir = System.getProperty("user.dir");
+        File dataDir = new File(appDir, "data");
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
+
+        this.userFilePath = new File(dataDir, USER_FILE).getAbsolutePath();
+        LOGGER.info("Using user database path: " + userFilePath);
+
         UserDatabase loadedDb = loadUserDatabase();
 
         if (loadedDb == null) {
@@ -60,7 +64,6 @@ public class Auth {
     }
 
     public boolean authenticate(String username, String password) {
-
         if (username == null || password == null) {
             LOGGER.warn("Authentication attempt with null username or password");
             return false;
@@ -75,7 +78,6 @@ public class Auth {
         User user = userOpt.get();
         SecureString securePassword = new SecureString(password.toCharArray());
         try {
-
             Argon2Function argon2 = Argon2Function.getInstance(16384, 3, 1, 256, Argon2.ID);
             boolean result = Password.check(securePassword, user.getPassword()).with(argon2);
 
@@ -85,6 +87,7 @@ public class Auth {
             securePassword.clear();
         }
     }
+
     public boolean signIn(String username, String password) {
         LOGGER.debug("Tentativo di registrazione per l'utente: " + username);
 
@@ -99,16 +102,13 @@ public class Auth {
             return false;
         }
 
-
         boolean result = addUser(username, password);
 
         if (result) {
-
             if (saveUserDatabase()) {
                 LOGGER.info("Utente registrato con successo: " + username);
             } else {
                 LOGGER.error("Registrazione riuscita ma impossibile salvare il database utenti");
-
             }
         } else {
             LOGGER.error("Registrazione fallita: impossibile aggiungere l'utente al database: " + username);
@@ -116,13 +116,12 @@ public class Auth {
 
         return result;
     }
-    public boolean addUser(String username, String password) {
 
+    public boolean addUser(String username, String password) {
         if (findUserByUsername(username).isPresent()) {
             LOGGER.warn("Failed to add user: Username already exists: " + username);
             return false;
         }
-
 
         SecureString securePassword = new SecureString(password.toCharArray());
         try  {
@@ -131,11 +130,9 @@ public class Auth {
             String hashedUsername = Password.hash(username).with(argon2).getResult();
             String hashedPassword = Password.hash(securePassword).with(argon2).getResult();
 
-
             User newUser = new User();
             newUser.setUsername(hashedUsername);
             newUser.setPassword(hashedPassword);
-
 
             Cleartext cleartext = new Cleartext();
             cleartext.setUsername(username);
@@ -191,10 +188,10 @@ public class Auth {
             return null;
         }
     }
+
     private boolean saveUserDatabase() {
         String filePath = getUserFilePath();
         try {
-
             File file = new File(filePath);
             File parentDir = file.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
