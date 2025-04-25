@@ -37,6 +37,7 @@ public class Auth {
     }
 
     public Auth() {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
         this.gson = new GsonBuilder().setPrettyPrinting().create();
 
         String appDir = System.getProperty("user.dir");
@@ -51,7 +52,7 @@ public class Auth {
         UserDatabase loadedDb = loadUserDatabase();
 
         if (loadedDb == null) {
-            Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
+
             LOGGER.info("Creating new user database");
             this.userDb = new UserDatabase();
             this.userDb.setAlgoritmoHash("Argon2");

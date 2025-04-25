@@ -7,11 +7,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class Client extends Application {
-
-
+    private static final Logger logger = LogManager.getLogger(Client.class);
     private final String[][] scenes = {
             {"Login", "/LoginPage.fxml"},
             {"SignIn", "/SignInPage.fxml"},
@@ -27,7 +27,7 @@ public class Client extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
+        logger.info("Application starting");
         primaryStage.setTitle("Socket Application");
         primaryStage.setOnCloseRequest(windowEvent -> {
             SocketClient sc= SocketClient.getInstance();
@@ -52,11 +52,12 @@ public class Client extends Application {
 
     @Override
     public void stop() throws Exception {
+        logger.info("Application stopping");
         closeSocket();
 
     }
     private void initSocketConnection() {
-
+        logger.info("Initializing socket connection");
 
         socketThread = new Thread(SocketClient.getInstance());
 
@@ -65,6 +66,8 @@ public class Client extends Application {
     }
 
     private void closeSocket() throws Exception {
+        logger.info("Closing socket connection");
+
         if (socketClient != null && socketClient.isIsconnected()) {
             socketClient.disconnect();
         }

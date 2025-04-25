@@ -10,7 +10,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.StackPane;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+
 public class LoadingController {
+    private static final Logger logger = LogManager.getLogger(LoadingController.class);
+
     @FXML
     private StackPane rootPane;
 
@@ -19,6 +26,7 @@ public class LoadingController {
 
     @FXML
     public void initialize() {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
 
         progressIndicator.setMinSize(100, 100);
         progressIndicator.setPrefSize(100, 100);
@@ -37,6 +45,7 @@ public class LoadingController {
     }
 
     private void onWindowShown() {
+        logger.info("Loading screen shown, searching for match");
 
         new Thread(() -> {
             try {
@@ -45,6 +54,7 @@ public class LoadingController {
 
                 Message request = new Message("FMATCH");
                 Message response = socketClient.sendAndReceive(Json.serializedMessage(request), Message.class);
+                logger.info("Match found, proceeding to ship placement");
 
 
                 Platform.runLater(() -> {
@@ -52,11 +62,14 @@ public class LoadingController {
                         sceneManager.switchTo("ShipPlacement");
                     } else {
 
-                        sceneManager.switchTo("MainMenu"); // Assuming you have a main menu scene
+                        sceneManager.switchTo("MainMenu");
+                        logger.info("Match not found, returning to main menu");
+
                     }
                 });
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                logger.error("Error finding match: " + e.getMessage(), e);
+
             }
         }).start();
     }

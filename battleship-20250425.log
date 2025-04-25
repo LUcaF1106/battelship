@@ -1,0 +1,41 @@
+2025-04-25 21:26:49.131 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - Using user database path: /Users/busa/Documents/GitHub/battelship/data/users.json
+2025-04-25 21:26:49.136 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - User database loaded successfully with 4 users
+2025-04-25 21:26:49.137 [main] INFO  com.itis._5a.frasson.busanello.server.Server - Server listening on port 12345
+2025-04-25 21:26:49.138 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Matchmaking service started
+2025-04-25 21:33:50.839 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - Using user database path: /Users/busa/Documents/GitHub/battelship/data/users.json
+2025-04-25 21:33:50.844 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - User database loaded successfully with 4 users
+2025-04-25 21:33:50.846 [main] INFO  com.itis._5a.frasson.busanello.server.Server - Server listening on port 12345
+2025-04-25 21:33:50.846 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Matchmaking service started
+2025-04-25 21:34:01.575 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - Using user database path: /Users/busa/Documents/GitHub/battelship/data/users.json
+2025-04-25 21:34:01.581 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - User database loaded successfully with 4 users
+2025-04-25 21:34:01.582 [main] INFO  com.itis._5a.frasson.busanello.server.Server - Server listening on port 12345
+2025-04-25 21:34:01.583 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Matchmaking service started
+2025-04-25 21:36:57.799 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - Using user database path: /Users/busa/Documents/GitHub/battelship/data/users.json
+2025-04-25 21:36:57.805 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - User database loaded successfully with 4 users
+2025-04-25 21:36:57.806 [main] INFO  com.itis._5a.frasson.busanello.server.Server - Server listening on port 12345
+2025-04-25 21:36:57.806 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Matchmaking service started
+2025-04-25 21:37:06.949 [main] INFO  com.itis._5a.frasson.busanello.server.Server - New client connected: /127.0.0.1
+2025-04-25 21:37:06.953 [main] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - I/O streams initialized for client: 1745609826950-0
+2025-04-25 21:37:06.996 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Secure communication established with client: 1745609826950-0
+2025-04-25 21:37:23.130 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Login attempt: busa
+2025-04-25 21:37:23.231 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.Auth - Authentication for user busa: successful
+2025-04-25 21:37:23.232 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Authentication successful: busa
+2025-04-25 21:37:26.158 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Client 1745609826950-0 requested match finding
+2025-04-25 21:37:26.158 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.Server - Player enqueued for matchmaking: 1745609826950-0
+2025-04-25 21:37:26.158 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Player 1 ready for match: 1745609826950-0
+2025-04-25 21:37:29.161 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Client 1745609826950-0 canceled matchmaking
+2025-04-25 21:37:29.161 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.Server - Player removed from matchmaking queue: 1745609826950-0
+2025-04-25 21:37:29.161 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.Server - Handling disconnect for client: 1745609826950-0
+2025-04-25 21:37:29.162 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Client resources cleaned up: 1745609826950-0
+2025-04-25 21:37:29.163 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Client disconnesso: busa
+2025-04-25 21:37:29.163 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.Server - Handling disconnect for client: 1745609826950-0
+2025-04-25 21:37:29.163 [pool-2-thread-2] INFO  com.itis._5a.frasson.busanello.server.ClientHandler - Client resources cleaned up: 1745609826950-0
+2025-04-25 21:37:31.164 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Client 1 disconnected while waiting for opponent: 1745609826950-0
+2025-04-25 21:38:14.223 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - Using user database path: /Users/busa/Documents/GitHub/battelship/data/users.json
+2025-04-25 21:38:14.229 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - User database loaded successfully with 4 users
+2025-04-25 21:38:14.231 [main] INFO  com.itis._5a.frasson.busanello.server.Server - Server listening on port 12345
+2025-04-25 21:38:14.231 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Matchmaking service started
+2025-04-25 21:38:41.102 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - Using user database path: /Users/busa/Documents/GitHub/battelship/data/users.json
+2025-04-25 21:38:41.109 [main] INFO  com.itis._5a.frasson.busanello.server.Auth - User database loaded successfully with 4 users
+2025-04-25 21:38:41.110 [main] INFO  com.itis._5a.frasson.busanello.server.Server - Server listening on port 12345
+2025-04-25 21:38:41.111 [pool-2-thread-1] INFO  com.itis._5a.frasson.busanello.server.Server - Matchmaking service started

@@ -17,11 +17,19 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class GameController implements Initializable {
+    private static final Logger logger = LogManager.getLogger(GameController.class);
+
+
+
     @FXML
     private BorderPane rootPane;
     @FXML
@@ -40,6 +48,9 @@ public class GameController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
+        logger.info("Initializing game controller");
+
         initializeGrid();
 
         rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -54,6 +65,8 @@ public class GameController implements Initializable {
     }
 
     private void onWindowShown() {
+        logger.info("Game window shown, starting game thread");
+
         new Thread(() -> {
             try {
                 SocketClient socketClient = SocketClient.getInstance();
@@ -90,16 +103,20 @@ public class GameController implements Initializable {
                 }
 
             } catch (Exception e) {
-                System.err.println("Game initialization error: " + e.getMessage());
+                logger.error("Game initialization error: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
     }
 
     private void waitForOpponentMove() {
+        logger.debug("Waiting for opponent move");
+
         try {
             SocketClient socketClient = SocketClient.getInstance();
             ResultMove move = socketClient.receiveMessage(ResultMove.class);
+            logger.debug("Received opponent move: (" + move.getX() + "," + move.getY() + ")");
+
             if (move == null) {
                 handleNetworkError();
                 return;
@@ -117,7 +134,7 @@ public class GameController implements Initializable {
 
         } catch (Exception e) {
 
-            System.err.println("Error waiting for opponent move: " + e.getMessage());
+            logger.error("Error waiting for opponent move: " + e.getMessage());
             e.printStackTrace();
 
         }
@@ -194,6 +211,8 @@ public class GameController implements Initializable {
 
     private void handleGameOver(boolean victory) {
         gameOver = true;
+        logger.info("Game over. Victory: " + victory);
+
         Platform.runLater(() -> {
             if (victory) {
                 statusLabel.setText("Hai vinto la partita!");
@@ -267,6 +286,7 @@ showInfoAlert("Vittoria", "hai vinto");
     }
 
     private void handleOpponentCellClick(MouseEvent event) {
+
         if (!isMyTurn || gameOver) {
             return;
         }
@@ -275,16 +295,20 @@ showInfoAlert("Vittoria", "hai vinto");
         int[] cellData = (int[]) clickedCell.getUserData();
         int clickedRow = cellData[0];
         int clickedCol = cellData[1];
+        logger.debug("Cell clicked: (" + clickedRow + "," + clickedCol + ")");
+
 
         if (clickedCell.getFill() != Color.ALICEBLUE) {
             return;
         }
 
-        System.out.println("Attacking: Row " + clickedRow + ", Col " + clickedCol);
+
         sendMove(clickedRow, clickedCol);
     }
 
     private void sendMove(int clickedRow, int clickedCol) {
+        logger.debug("Sending move to server: (" + clickedRow + "," + clickedCol + ")");
+
         try {
             SocketClient socketClient = SocketClient.getInstance();
             Move move = new Move(clickedRow, clickedCol);
@@ -294,6 +318,7 @@ showInfoAlert("Vittoria", "hai vinto");
 
             ResultMove result = socketClient.receiveMessage(ResultMove.class);
 
+            logger.debug("Move result received: " + result.getRmove());
 
             if (result == null) {
                 handleNetworkError();
@@ -314,12 +339,13 @@ showInfoAlert("Vittoria", "hai vinto");
             Platform.runLater(() -> statusLabel.setText("Attendi l'avversario"));
 
         } catch (Exception e) {
-            System.err.println("Error sending move: " + e.getMessage());
+            logger.error("Error sending move: " + e.getMessage());
             handleNetworkError();
             e.printStackTrace();
         }
     }
     private void handleOpponentDisconnected() {
+        logger.warn("Opponent disconnected");
         Platform.runLater(() -> {
             statusLabel.setText("L'avversario si è disconnesso! Vittoria automatica.");
             disableGridInteractions();
@@ -329,6 +355,7 @@ showInfoAlert("Vittoria", "hai vinto");
     }
 
     private void handleNetworkError() {
+        logger.error("Network error occurred");
 
         Platform.runLater(() -> {
             statusLabel.setText("Errore di connessione con il server");

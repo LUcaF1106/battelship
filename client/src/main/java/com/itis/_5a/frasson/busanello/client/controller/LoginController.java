@@ -10,8 +10,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public class LoginController {
+    private static final Logger logger = LogManager.getLogger(LoginController.class);
+
     @FXML
     private TextField usernameField;
 
@@ -26,6 +32,8 @@ public class LoginController {
 
     @FXML
     private void handleLogin() throws Exception {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
+        logger.info("Login attempt for user: " + usernameField.getText());
 
 
         SocketClient socketClient = SocketClient.getInstance();
@@ -39,9 +47,9 @@ public class LoginController {
             Message sent=socketClient.sendAndReceive(Json.serializedMessage(mes), Message.class);
 
 
-            System.out.println(sent.getType());
             if (sent.getType().equals("ACC")) {
                 messageLabel.setText("Credenziali inviate al server!");
+                logger.info("Login successful for user: " + usernameField.getText());
                 messageLabel.setStyle("-fx-text-fill: green;");
                 loadMainScreen(true);
 
@@ -50,12 +58,16 @@ public class LoginController {
                 messageLabel.setStyle("-fx-text-fill: red;");
             }
         } else {
+            logger.warn("Login failed for user: " + usernameField.getText());
+
             messageLabel.setText("Non connesso al server");
             messageLabel.setStyle("-fx-text-fill: red;");
         }
     }
     @FXML
     private void hadleWithoutLogin(){
+        logger.info("User proceeding without login");
+
         loadMainScreen(false);
     }
 

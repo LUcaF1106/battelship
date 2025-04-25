@@ -14,11 +14,17 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class ShipPlacementController implements Initializable {
+    private static final Logger logger = LogManager.getLogger(ShipPlacementController.class);
 
     @FXML private GridPane gameGrid;
     @FXML private VBox shipsContainer;
@@ -42,6 +48,8 @@ public class ShipPlacementController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
+        logger.info("Initializing ship placement controller");
 
         initializeGrid();
         submit.setDisable(true);
@@ -228,6 +236,7 @@ public class ShipPlacementController implements Initializable {
     }
 
     private void placeShipInMatrix(int row, int col, int size) {
+        logger.debug("Placing ship of size " + size + " at position (" + row + "," + col + "), vertical: " + isVertical);
 
 
         for (int i = 0; i < size; i++) {
@@ -301,6 +310,8 @@ public class ShipPlacementController implements Initializable {
 
     @FXML
     private void resetGame() {
+        logger.info("Resetting ship placement");
+
         // Resetta la matrice
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
@@ -335,6 +346,7 @@ public class ShipPlacementController implements Initializable {
     }
     public void submit(){
         SocketClient socketClient=SocketClient.getInstance();
+        logger.info("Submitting ship placement to server");
 
         Message message;
         statusLabel.setText("In attesa dell'altro giocatore");
@@ -345,10 +357,12 @@ public class ShipPlacementController implements Initializable {
         rotateButton.setDisable(true);
         try {
 
-
-
            message= socketClient.sendAndReceive(Json.serializedMessage(new ShipPlacement(shipMatrix)), Message.class);
+           logger.info("Ship placement accepted, moving to game");
+
         } catch (Exception e) {
+            logger.error("Error submitting ship placement: " + e.getMessage(), e);
+
             throw new RuntimeException(e);
         }
         if("PLAY".equals(message.getType())){

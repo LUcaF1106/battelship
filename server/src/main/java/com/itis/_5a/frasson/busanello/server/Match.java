@@ -6,7 +6,13 @@ import com.itis._5a.frasson.busanello.common.Message.Move;
 import com.itis._5a.frasson.busanello.common.Message.ResultMove;
 import com.itis._5a.frasson.busanello.common.Message.Turn;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+
 public class Match implements Runnable {
+    private static final Logger LOGGER = LogManager.getLogger(Match.class);
 
     private boolean sendTurn = false;
     private ClientHandler client1;
@@ -29,9 +35,11 @@ public class Match implements Runnable {
     private int p2ShipsRemaining = 5;
 
     public Match(ClientHandler c1, ClientHandler c2) {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
+
         this.client1 = c1;
         this.client2 = c2;
-        System.out.println("Creato il match");
+        LOGGER.info("Match created between players: {} and {}", c1.getId(), c2.getId());
     }
 
     @Override
@@ -45,8 +53,10 @@ public class Match implements Runnable {
         try {
             client1.sendMessage(new Message("MFIND"));
             client2.sendMessage(new Message("MFIND"));
-            System.out.println("Match initialized, sending MFIND to both players");
+            LOGGER.info("Match initialized, sending MFIND to both players");
         } catch (Exception e) {
+            LOGGER.error("Error initializing match", e);
+
             throw new RuntimeException(e);
         }
     }
@@ -54,18 +64,20 @@ public class Match implements Runnable {
     public synchronized void playerReady(ClientHandler c) {
         if (c == client1) {
             p1Ready = true;
-            System.out.println("Client1 è pronto");
+            LOGGER.info("Player 1 ({}) is ready", client1.getId());
         }
         else if (c == client2) {
             p2Ready = true;
-            System.out.println("Client2 è pronto");
+            LOGGER.info("Player 2 ({}) is ready", client2.getId());
         }
 
         if (p1Ready && p2Ready) {
-            System.out.println("Inizio del game");
+            LOGGER.info("Both players ready, starting game");
             try {
                 startGame();
             } catch (Exception e) {
+                LOGGER.error("Error starting game", e);
+
                 throw new RuntimeException(e);
             }
         }
@@ -76,7 +88,7 @@ public class Match implements Runnable {
         client1.setState(3);
         client2.sendMessage(new Message("PLAY"));
         client2.setState(3);
-        System.out.println("Game iniziato");
+        LOGGER.info("Game started between {} and {}", client1.getId(), client2.getId());
     }
 
 
@@ -84,10 +96,10 @@ public class Match implements Runnable {
     public void setMapShip(int[][] map, ClientHandler c) {
         if (c == client1) {
             mapShip1 = map;
-            System.out.println("Client1 ha posizionato le navi");
+            LOGGER.debug("Player 1 ({}) placed ships", client1.getId());
         } else if (c == client2) {
             mapShip2 = map;
-            System.out.println("Client2 ha posizionato le navi");
+            LOGGER.debug("Player 2 ({}) placed ships", client2.getId());
         }
         playerReady(c);
     }
@@ -100,14 +112,14 @@ public class Match implements Runnable {
 
                 client2.sendMessage(new Turn("OT", mapShip2, moveMap2));
                 c1turn = true;
-                System.out.println("Turno iniziale del client1");
+                LOGGER.debug("Initial turn set for Player 1 ({})", client1.getId());
             } else if (c == client2) {
 
                 client2.sendMessage(new Turn("YT", mapShip2, moveMap2));
 
                 client1.sendMessage(new Turn("OT", mapShip1, moveMap1));
                 c1turn = false;
-                System.out.println("Turno iniziale del client2");
+                LOGGER.debug("Initial turn set for Player 2 ({})", client2.getId());
             }
             sendTurn = true;
         }
@@ -118,7 +130,7 @@ public class Match implements Runnable {
     public String checkMoves(int x, int y, int[][] map, int[][] moves) {
 
         if (x < 0 || x >= map.length || y < 0 || y >= map[0].length) {
-            System.out.println("Invalid coordinates: [" + x + "," + y + "]");
+            LOGGER.warn("Invalid coordinates: [{},{}]", x, y);
             return "ACQUA";
         }
 
@@ -127,21 +139,21 @@ public class Match implements Runnable {
         if (shipType == 0) {
 
             moves[x][y] = 999;
-            System.out.println("Hit water at [" + x + "," + y + "]");
+            LOGGER.debug("Hit water at [{},{}]", x, y);
             return "ACQUA";
         } else {
             moves[x][y] = shipType;
-            System.out.println("Hit ship type " + shipType + " at [" + x + "," + y + "]");
+            LOGGER.debug("Hit ship type {} at [{},{}]", shipType, x, y);
 
             boolean isSunk = checkIfSunk(shipType, map, moves);
 
             if (isSunk) {
                 if (map == mapShip1) {
                     p1ShipsRemaining--;
-                    System.out.println("Player 1 ship type " + shipType + " SUNK! Remaining ships: " + p1ShipsRemaining);
+                    LOGGER.info("Player 1 ship type {} SUNK! Remaining ships: {}", shipType, p1ShipsRemaining);
                 } else {
                     p2ShipsRemaining--;
-                    System.out.println("Player 2 ship type " + shipType + " SUNK! Remaining ships: " + p2ShipsRemaining);
+                    LOGGER.info("Player 2 ship type {} SUNK! Remaining ships: {}", shipType, p2ShipsRemaining);
                 }
                 return "AFFONDATO";
             } else {
@@ -158,7 +170,7 @@ public class Match implements Runnable {
                 }
             }
         }
-        System.out.println("Ship type " + shipType + " is completely sunk!");
+        LOGGER.debug("Ship type {} is completely sunk!", shipType);
         return true;
     }
 
@@ -166,25 +178,28 @@ public class Match implements Runnable {
         try {
             switch (message.getType()) {
                 case "TURN":
-                    System.out.println("TURN request received from " + (client == client1 ? "Player 1" : "Player 2"));
+                    LOGGER.debug("TURN request received from {}", (client == client1 ? "Player 1" : "Player 2"));
+
                     setInitialTurn(client);
                     break;
                 case "MOVE":
-                    System.out.println("MOVE received from " + (client == client1 ? "Player 1" : "Player 2"));
+                    LOGGER.debug("MOVE received from {}", (client == client1 ? "Player 1" : "Player 2"));
+
                     Move move = Json.deserializedSpecificMessage(messageDecrypted, Move.class);
-                    System.out.println("Move details: [" + move.getX() + "," + move.getY() + "]");
+                    LOGGER.debug("Move details: [" + move.getX() + "," + move.getY() + "]");
                     handleMove(client, move);
                     break;
                 case "EXIT":
-                    System.out.println((client == client1 ? "Player 1" : "Player 2")+ "is disconnected");
+                    LOGGER.info("{} is disconnected from match", (client == client1 ? "Player 1" : "Player 2"));
+
                     break;
                 default:
-                    System.out.println("Unhandled game message type: " + message.getType());
+                    LOGGER.warn("Unhandled game message type: {}", message.getType());
                     break;
             }
         } catch (Exception e) {
-            System.err.println("Error processing match message: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Error processing match message", e);
+
         }
     }
 
@@ -208,13 +223,15 @@ public class Match implements Runnable {
                 }
                 c1turn = true;
             } else {
-                System.out.println("Move received from wrong player!");
+                LOGGER.warn("Move received from wrong player");
                 return;
             }
 
             try {
                 sendMessageResult(move, result, gameOver, client);
             } catch (Exception e) {
+                LOGGER.error("Error sending move result", e);
+
                 e.printStackTrace();
             }
         }
@@ -226,12 +243,12 @@ public class Match implements Runnable {
         String opponentResult = result;
         if (result.equals("VITTORIA")) {
             opponentResult = "SCONFITTA";
-            System.out.println("Sending victory message to " + (moveClient == client1 ? "Player 1" : "Player 2"));
-            System.out.println("Sending defeat message to " + (moveClient == client1 ? "Player 2" : "Player 1"));
+            LOGGER.info("Sending victory message to Player {}", (moveClient == client1 ? "Player 1" : "Player 2"));
+            LOGGER.info("Sending defeat message to Player {}", (moveClient == client1 ? "Player 2" : "Player 1"));
         } else if (result.equals("SCONFITTA")) {
             opponentResult = "VITTORIA";
         } else {
-            System.out.println("Move result: " + result + " at [" + move.getX() + "," + move.getY() + "]");
+            LOGGER.debug("Move result: {} at [{},{}]", result, move.getX(), move.getY());
         }
 
         ResultMove opponentMove = new ResultMove(move.getX(), move.getY(), opponentResult, gameOver);
@@ -245,16 +262,16 @@ public class Match implements Runnable {
         }
 
         if (gameOver) {
-            System.out.println("======= GAME OVER =======");
-            System.out.println("Winner: " + (moveClient == client1 ? "Player 1" : "Player 2"));
-            System.out.println("Player 1 ships remaining: " + p1ShipsRemaining);
-            System.out.println("Player 2 ships remaining: " + p2ShipsRemaining);
-            System.out.println("=========================");
+            LOGGER.info("======= GAME OVER =======");
+            LOGGER.info("Winner: {}", (moveClient == client1 ? "Player 1" : "Player 2"));
+            LOGGER.info("Player 1 ships remaining: {}", p1ShipsRemaining);
+            LOGGER.info("Player 2 ships remaining: {}", p2ShipsRemaining);
+            LOGGER.info("=========================");
         }
     }
     public void handleDisconnect(ClientHandler disconnectedPlayer) {
 
-        System.out.println("Player disconnected from match: " + disconnectedPlayer.getId());
+        LOGGER.info("Player disconnected from match: {}", disconnectedPlayer.getId());
 
         try {
             ClientHandler opponent = (disconnectedPlayer.equals(client1)) ? client2 : client1;
@@ -262,11 +279,12 @@ public class Match implements Runnable {
             if (opponent.isConnected()) {
                 Message disconnectMessage = new Message("OPPONENT_DISCONNECTED");
                 opponent.sendMessage(disconnectMessage);
+                LOGGER.info("Sent disconnect notification to opponent: {}", opponent.getId());
 
             }
 
         } catch (Exception e) {
-            System.err.println("Error handling disconnect in match"+ e);
+            LOGGER.error("Error handling disconnect in match", e);
         } finally {
             handleMatchEnd();
         }
@@ -274,7 +292,7 @@ public class Match implements Runnable {
 
     private void handleMatchEnd() {
 
-        System.out.println("Match ended between " + client1.getId() + " and " + client2.getId());
+        LOGGER.info("Match ended between {} and {}", client1.getId(), client2.getId());
 
         client1.setCurrentMatch(null);
         client2.setCurrentMatch(null);

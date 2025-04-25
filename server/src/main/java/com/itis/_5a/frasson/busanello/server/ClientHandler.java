@@ -45,6 +45,7 @@ public class ClientHandler implements Runnable {
     private Match currentMatch;
 
     public ClientHandler(Socket socket, Auth auth) {
+        Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.INFO);
         this.clientSocket = socket;
         this.auth = auth;
         this.id=generateId();
